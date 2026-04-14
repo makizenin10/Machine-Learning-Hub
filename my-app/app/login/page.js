@@ -57,6 +57,10 @@ export default function Login() {
       <p>{message}</p>
 
       <style jsx>{`
+        h1{
+          font-size: 24px;
+          font-weight: bold;
+        }
         .container {
           max-width: 300px;
           margin: 100px auto;
@@ -77,14 +81,14 @@ export default function Login() {
           padding: 8px;
           margin-top: 8px;
           border: none;
-          background: #dd5be9;
+          background: #a855f7;
           color: white;
           border-radius: 4px;
           cursor: pointer;
         }
 
         button:last-of-type {
-          background: #264d89;
+          background: #3039bc;
         }
 
         p {
