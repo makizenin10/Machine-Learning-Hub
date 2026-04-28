@@ -12,6 +12,18 @@ export default function Signup() {
   const [message, setMessage] = useState("");
 
   const handleSignUp = async () => {
+    // Check if all required fields are filled
+    if (!email.trim() || !password.trim() || !fullName.trim() || !age.trim() || !contactNumber.trim()) {
+      setMessage("Please fill in all fields before signing up.");
+      return;
+    }
+
+    const ageValue = parseInt(age, 10);
+    if (Number.isNaN(ageValue) || ageValue <= 0) {
+      setMessage("Please enter a valid age.");
+      return;
+    }
+
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\[\]{};':"\\|,.<>\/?]).{8,}$/;
     if (!passwordRegex.test(password)) {
       setMessage("Password must be at least 8 characters and include uppercase, lowercase, number, and symbol.");
