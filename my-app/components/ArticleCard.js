@@ -1,9 +1,10 @@
 'use client';
 import { supabase } from '@/lib/supabaseClient';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function ArticleCard({ article, currentUserId, currentUserRole, onDeleted }) {
   const [count, setCount] = useState(article.counter);
+  const [hasLiked, setHasLiked] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(article.title);
   const [editContent, setEditContent] = useState(article.content);
@@ -11,13 +12,38 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
 
   const isOwner = currentUserId === article.user_id;
   const isAdmin = currentUserRole === 'admin';
-
   const canEdit = isOwner;
   const canDelete = isOwner || isAdmin;
 
-  const handleIncrement = async () => {
-    const { error } = await supabase.rpc('increment_counter', { row_id: article.id });
-    if (!error) setCount(count + 1);
+  // Check if current user already liked this article
+  useEffect(() => {
+    const checkLike = async () => {
+      const { data } = await supabase
+        .from('likes')
+        .select('id')
+        .eq('user_id', currentUserId)
+        .eq('article_id', article.id)
+        .single();
+      if (data) setHasLiked(true);
+    };
+    if (currentUserId) checkLike();
+  }, [currentUserId, article.id]);
+
+  const handleLike = async () => {
+    if (hasLiked) return; // already liked, do nothing
+
+    const { error: likeError } = await supabase
+      .from('likes')
+      .insert([{ user_id: currentUserId, article_id: article.id }]);
+
+    if (!likeError) {
+      const { error: countError } = await supabase
+        .rpc('increment_counter', { row_id: article.id });
+      if (!countError) {
+        setCount(count + 1);
+        setHasLiked(true);
+      }
+    }
   };
 
   const handleShare = async () => {
@@ -87,7 +113,18 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
           <p>{article.content}</p>
 
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', marginTop: '10px' }}>
-            <button onClick={handleIncrement}>🔥 {count}</button>
+            <button
+              onClick={handleLike}
+              disabled={hasLiked}
+              style={{
+                padding: '4px 10px',
+                background: hasLiked ? '#d1d5db' : '#f97316',
+                color: hasLiked ? '#6b7280' : 'white',
+                border: 'none', borderRadius: '4px',
+                cursor: hasLiked ? 'not-allowed' : 'pointer'
+              }}>
+              🔥 {count} {hasLiked ? '(Liked)' : ''}
+            </button>
             <button onClick={() => {}}>💬 Comments</button>
             <button onClick={handleShare}>🔗 Share</button>
 
