@@ -8,6 +8,10 @@ export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [articles, setArticles] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [newContent, setNewContent] = useState("");
+  const [publishing, setPublishing] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -19,7 +23,6 @@ export default function Dashboard() {
       }
       setUser(user);
 
-      // Fetch user role from profiles
       const { data: profile } = await supabase
         .from("profiles")
         .select("role")
@@ -28,7 +31,6 @@ export default function Dashboard() {
 
       setUserRole(profile?.role || "user");
 
-      // Fetch Articles
       const { data, error } = await supabase
         .from("articles")
         .select("*, profiles(username)")
@@ -47,6 +49,30 @@ export default function Dashboard() {
 
   const handleArticleDeleted = (deletedId) => {
     setArticles((prev) => prev.filter((a) => a.id !== deletedId));
+  };
+
+  const handlePublish = async () => {
+    if (!newTitle.trim() || !newContent.trim()) {
+      alert("Please fill in both title and content.");
+      return;
+    }
+
+    setPublishing(true);
+    const { data, error } = await supabase
+      .from("articles")
+      .insert([{ title: newTitle, content: newContent, user_id: user.id, counter: 0 }])
+      .select("*, profiles(username)")
+      .single();
+    setPublishing(false);
+
+    if (!error) {
+      setArticles((prev) => [data, ...prev]);
+      setNewTitle("");
+      setNewContent("");
+      setShowForm(false);
+    } else {
+      alert("Failed to publish: " + error.message);
+    }
   };
 
   if (!user) return <div>Loading...</div>;
@@ -69,6 +95,34 @@ export default function Dashboard() {
       </div>
 
       <hr />
+
+      {/* Publish Button */}
+      <div style={{ textAlign: 'right', marginBottom: '10px' }}>
+        <button className="publish-btn" onClick={() => setShowForm(!showForm)}>
+          {showForm ? '✕ Cancel' : '✏️ Publish Article'}
+        </button>
+      </div>
+
+      {/* Publish Form */}
+      {showForm && (
+        <div className="publish-form">
+          <input
+            type="text"
+            placeholder="Article Title"
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+          />
+          <textarea
+            placeholder="Write your article here..."
+            value={newContent}
+            onChange={(e) => setNewContent(e.target.value)}
+            rows={5}
+          />
+          <button className="submit-btn" onClick={handlePublish} disabled={publishing}>
+            {publishing ? 'Publishing...' : '🚀 Publish'}
+          </button>
+        </div>
+      )}
 
       <div className="feed">
         <h2>Article Feed</h2>
@@ -95,6 +149,48 @@ export default function Dashboard() {
         .logout-btn { display: block; padding: 8px 16px; margin: 16px auto 0; border: none; background: #a855f7; color: white; border-radius: 4px; cursor: pointer; }
         hr { margin: 20px 0; border: 0; border-top: 1px solid #eee; }
         .feed { display: flex; flex-direction: column; gap: 10px; }
+
+        .publish-btn {
+          padding: 8px 16px;
+          background: #3b82f6;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 14px;
+        }
+
+        .publish-form {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          background: #f9fafb;
+          padding: 16px;
+          border-radius: 8px;
+          margin-bottom: 16px;
+          border: 1px solid #e5e7eb;
+        }
+
+        .publish-form input, .publish-form textarea {
+          width: 100%;
+          padding: 8px;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          font-size: 14px;
+          font-family: Arial, sans-serif;
+          box-sizing: border-box;
+        }
+
+        .submit-btn {
+          padding: 8px 16px;
+          background: #10b981;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 14px;
+          align-self: flex-end;
+        }
       `}</style>
     </div>
   );
