@@ -10,14 +10,28 @@ export default function ResetPassword() {
   const router = useRouter();
 
   useEffect(() => {
-    // Check if we have a session (user clicked reset link)
-    const checkSession = async () => {
+    const checkResetLink = async () => {
+      if (typeof window === "undefined") return;
+      const params = new URLSearchParams(window.location.search);
+      const access_token = params.get("access_token");
+      const refresh_token = params.get("refresh_token");
+      const type = params.get("type");
+
+      if (type === "recovery" && access_token && refresh_token && supabase.auth.setSession) {
+        const { data, error } = await supabase.auth.setSession({ access_token, refresh_token });
+        if (error || !data?.session) {
+          setMessage("Invalid or expired reset link. Please request a new password reset.");
+          return;
+        }
+        return;
+      }
+
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         setMessage("Invalid or expired reset link. Please request a new password reset.");
       }
     };
-    checkSession();
+    checkResetLink();
   }, []);
 
   const handleResetPassword = async () => {
@@ -26,14 +40,24 @@ export default function ResetPassword() {
       return;
     }
 
-    if (password.length < 6) {
-      setMessage("Password must be at least 6 characters long.");
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\[\]{};':"\\|,.<>\/?]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setMessage("Password must be at least 8 characters and include uppercase, lowercase, number, and symbol.");
       return;
     }
 
-    const { error } = await supabase.auth.updateUser({
-      password: password
-    });
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError || !userData?.user) {
+      setMessage("No valid session found. Use the reset link sent to your email.");
+      return;
+    }
+
+    if (!userData.user.email && !userData.user.phone) {
+      setMessage("Password reset is not allowed for anonymous users. Please request a password reset using a registered email account.");
+      return;
+    }
+
+    const { error } = await supabase.auth.updateUser({ password });
 
     if (error) {
       setMessage(error.message);

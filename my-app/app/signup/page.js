@@ -12,6 +12,18 @@ export default function Signup() {
   const [message, setMessage] = useState("");
 
   const handleSignUp = async () => {
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\[\]{};':"\\|,.<>\/?]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setMessage("Password must be at least 8 characters and include uppercase, lowercase, number, and symbol.");
+      return;
+    }
+
+    const phoneRegex = /^\d{11}$/;
+    if (!phoneRegex.test(contactNumber)) {
+      setMessage("Contact number must be exactly 11 digits.");
+      return;
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -86,7 +98,8 @@ export default function Signup() {
         type="tel"
         placeholder="Contact Number"
         value={contactNumber}
-        onChange={(e) => setContactNumber(e.target.value)}
+        onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, ""))}
+        maxLength={11}
         required
       />
 
