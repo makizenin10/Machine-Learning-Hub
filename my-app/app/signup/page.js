@@ -3,13 +3,13 @@ import { useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import Link from "next/link";
 
-export default function Login() {
+export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
 
-  const handleLogin = async () => {
-    const { error } = await supabase.auth.signInWithPassword({
+  const handleSignUp = async () => {
+    const { error } = await supabase.auth.signUp({
       email,
       password,
     });
@@ -17,13 +17,13 @@ export default function Login() {
     if (error) {
       setMessage(error.message);
     } else {
-      setMessage("Login successful!");
+      setMessage("Sign up successful! Check your email.");
     }
   };
 
   return (
     <div className="container">
-      <h1>Login</h1>
+      <h1>Sign Up</h1>
 
       <input
         type="email"
@@ -39,11 +39,11 @@ export default function Login() {
         onChange={(e) => setPassword(e.target.value)}
       />
 
-      <button onClick={handleLogin}>Login</button>
+      <button onClick={handleSignUp}>Sign Up</button>
 
       <p>{message}</p>
 
-      <p>Don't have an account? <Link href="/signup">Sign up here</Link></p>
+      <p>Already have an account? <Link href="/login">Login here</Link></p>
 
       <style jsx>{`
         h1{
@@ -70,7 +70,7 @@ export default function Login() {
           padding: 8px;
           margin-top: 8px;
           border: none;
-          background: #a855f7;
+          background: #3039bc;
           color: white;
           border-radius: 4px;
           cursor: pointer;
