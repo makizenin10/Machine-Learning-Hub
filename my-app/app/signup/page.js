@@ -18,6 +18,12 @@ export default function Signup() {
       return;
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setMessage("Please enter a valid email address.");
+      return;
+    }
+
     const ageValue = parseInt(age, 10);
     if (Number.isNaN(ageValue) || ageValue <= 0) {
       setMessage("Please enter a valid age.");
