@@ -6,10 +6,13 @@ import Link from "next/link";
 export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [age, setAge] = useState("");
+  const [contactNumber, setContactNumber] = useState("");
   const [message, setMessage] = useState("");
 
   const handleSignUp = async () => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
     });
@@ -17,7 +20,29 @@ export default function Signup() {
     if (error) {
       setMessage(error.message);
     } else {
-      setMessage("Sign up successful! Check your email.");
+      // Save additional info to profiles table
+      if (data.user) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert([
+            {
+              id: data.user.id,
+              email,
+              full_name: fullName,
+              age: parseInt(age),
+              contact_number: contactNumber,
+              role: 'user'
+            }
+          ]);
+
+        if (profileError) {
+          setMessage("Signup successful but profile save failed: " + profileError.message);
+        } else {
+          setMessage("Sign up successful! Check your email for confirmation.");
+        }
+      } else {
+        setMessage("Sign up successful! Check your email for confirmation.");
+      }
     }
   };
 
@@ -30,6 +55,7 @@ export default function Signup() {
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
+        required
       />
 
       <input
@@ -37,6 +63,31 @@ export default function Signup() {
         placeholder="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
+        required
+      />
+
+      <input
+        type="text"
+        placeholder="Full Name"
+        value={fullName}
+        onChange={(e) => setFullName(e.target.value)}
+        required
+      />
+
+      <input
+        type="number"
+        placeholder="Age"
+        value={age}
+        onChange={(e) => setAge(e.target.value)}
+        required
+      />
+
+      <input
+        type="tel"
+        placeholder="Contact Number"
+        value={contactNumber}
+        onChange={(e) => setContactNumber(e.target.value)}
+        required
       />
 
       <button onClick={handleSignUp}>Sign Up</button>
@@ -52,7 +103,7 @@ export default function Signup() {
         }
         .container {
           max-width: 300px;
-          margin: 100px auto;
+          margin: 50px auto;
           text-align: center;
           font-family: Arial, sans-serif;
         }

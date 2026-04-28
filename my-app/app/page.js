@@ -8,12 +8,19 @@ export default function Home() {
         {/* Description */}
         <p className="text-black mb-6">A simple integrated web app using Supabase and Vercel.</p>
 
-        {/* Button */}
-        <a href="/login">
-          <button className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded transition duration-200">
-            Get Started
-          </button>
-        </a>
+        {/* Buttons */}
+        <div className="space-y-4">
+          <a href="/login">
+            <button className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded transition duration-200">
+              User Login/Signup
+            </button>
+          </a>
+          <a href="/admin-login">
+            <button className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded transition duration-200">
+              Admin Login
+            </button>
+          </a>
+        </div>
       </div>
     </div>
   );
