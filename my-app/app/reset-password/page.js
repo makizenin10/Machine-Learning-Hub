@@ -1,68 +1,71 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabaseClient";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-export default function Login() {
-  const [email, setEmail] = useState("");
+export default function ResetPassword() {
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const router = useRouter();
 
-  const handleLogin = async () => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+  useEffect(() => {
+    // Check if we have a session (user clicked reset link)
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setMessage("Invalid or expired reset link. Please request a new password reset.");
+      }
+    };
+    checkSession();
+  }, []);
 
-    if (error) {
-      setMessage(error.message);
-    } else {
-      router.push("/dashboard");
-    }
-  };
-
-  const handleForgotPassword = async () => {
-    if (!email) {
-      setMessage("Please enter your email address first.");
+  const handleResetPassword = async () => {
+    if (password !== confirmPassword) {
+      setMessage("Passwords do not match.");
       return;
     }
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+
+    if (password.length < 6) {
+      setMessage("Password must be at least 6 characters long.");
+      return;
+    }
+
+    const { error } = await supabase.auth.updateUser({
+      password: password
     });
+
     if (error) {
       setMessage(error.message);
     } else {
-      setMessage("Password reset email sent! Check your email.");
+      setMessage("Password updated successfully! You can now log in.");
+      setTimeout(() => {
+        router.push("/login");
+      }, 2000);
     }
   };
 
   return (
     <div className="container">
-      <h1>Login</h1>
-
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
+      <h1>Reset Password</h1>
 
       <input
         type="password"
-        placeholder="Password"
+        placeholder="New Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
 
-      <button onClick={handleLogin}>Login</button>
+      <input
+        type="password"
+        placeholder="Confirm New Password"
+        value={confirmPassword}
+        onChange={(e) => setConfirmPassword(e.target.value)}
+      />
 
-      <button onClick={handleForgotPassword} style={{ background: '#6b7280' }}>Forgot Password?</button>
+      <button onClick={handleResetPassword}>Update Password</button>
 
       <p>{message}</p>
-
-      <p>Don't have an account? <Link href="/signup">Sign up here</Link></p>
 
       <style jsx>{`
         h1{
