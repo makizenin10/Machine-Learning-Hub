@@ -105,9 +105,6 @@ export default function Dashboard() {
       <div className="header">
         <h1>Dashboard</h1>
         <p>Welcome, {user.email}!</p>
-        {userRole === "admin" && (
-          <span className="admin-badge">ADMIN</span>
-        )}
         <button className="logout-btn" onClick={handleLogout}>Logout</button>
       </div>
 
