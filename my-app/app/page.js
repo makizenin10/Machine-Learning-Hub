@@ -1,6 +1,6 @@
 export default function Home() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center">
       <div className="text-center bg-purple-300 p-8 rounded-lg shadow-md max-w-md">
         <h1 className="text-3xl font-bold text-black mb-4">Student Portal Demo</h1>
         <p className="text-black mb-6">A simple integrated web app using Supabase and Vercel.</p>
