@@ -3,7 +3,7 @@ export default function Home() {
     <div className="min-h-screen flex items-center justify-center">
       {/* Changed bg-white-800 to bg-white below */}
       <div className="text-center bg-white p-8 rounded-lg shadow-md max-w-md">
-        <h1 className="text-3xl font-bold text-black mb-4">Student Portal Demo</h1>
+        <h1 className="text-3xl font-bold text-black mb-4">Article Space</h1>
         <p className="text-black mb-6">A simple integrated web app using Supabase and Vercel.</p>
 
         <div className="flex flex-col gap-4">
