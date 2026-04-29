@@ -1,6 +1,9 @@
 'use client';
 import { supabase } from '@/lib/supabaseClient';
 import { useState, useEffect } from 'react';
+console.log('article:', article);
+console.log('author_id:', article.author_id);
+console.log('id:', article.id);
 
 export default function ArticleCard({ article, currentUserId, currentUserRole, onDeleted }) {
   const [count, setCount] = useState(article.counter || 0);
