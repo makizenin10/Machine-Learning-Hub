@@ -76,7 +76,9 @@ export default function ProfilePage() {
     <div className="main-wrapper">
       <div className="container">
         <div className="header">
-          <Link href="/dashboard" className="back-link">← Back to Dashboard</Link>
+          <Link href="/dashboard" className="back-link">
+            ← Back to Dashboard
+          </Link>
           <h1 className="page-title">My Profile</h1>
         </div>
 
@@ -154,27 +156,33 @@ export default function ProfilePage() {
             padding: 40px 20px;
           }
           .container { max-width: 800px; margin: 0 auto; font-family: 'Inter', system-ui, sans-serif; }
-          
           .header { margin-bottom: 30px; }
-          .back-link { 
-            display: inline-block;
-            font-size: 14px; 
-            color: #ffffff; 
-            text-decoration: none; 
-            font-weight: 700; 
-            background: #1f2937; 
-            padding: 10px 20px;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            border: 1px solid #374151;
+
+          :global(.back-link) { 
+            display: inline-block !important;
+            font-size: 14px !important; 
+            color: #ffffff !important; 
+            text-decoration: none !important; 
+            font-weight: 700 !important; 
+            background: #1f2937 !important; 
+            padding: 10px 20px !important;
+            border-radius: 8px !important;
+            transition: all 0.2s ease !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+            border: 1px solid #374151 !important;
+            margin-bottom: 15px !important;
+            margin-top: 15px !important;
+          }
+          .value { 
+            color: #000000 !important;  
+            font-weight: 600; 
           }
 
-  .back-link:hover { 
-    background: #000000; 
-    transform: translateX(-3px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  }
+          :global(.back-link:hover) { 
+            background: #000000 !important; 
+            transform: translateX(-3px) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+          }
           
           .page-title { 
             font-size: 25px; 
@@ -185,7 +193,6 @@ export default function ProfilePage() {
             -webkit-text-fill-color: transparent;
           }
 
-          /* GLASS CARD AESTHETIC */
           .profile-card { 
             background: rgba(255, 255, 255, 0.9); 
             backdrop-filter: blur(10px);
@@ -214,7 +221,6 @@ export default function ProfilePage() {
           }
           .edit-btn:hover { background: #4338ca; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
 
-          /* FORM STYLING */
           .field { margin-bottom: 15px; display: flex; flex-direction: column; gap: 6px; }
           .field label { font-size: 13px; font-weight: 700; color: #475569; }
           .styled-input { 
@@ -224,14 +230,12 @@ export default function ProfilePage() {
             font-size: 15px; 
             transition: 0.2s;
           }
-          .styled-input:focus { border-color: #6366f1; outline: none; ring: 2px solid #e0e7ff; }
           .readonly { background: #f8fafc; cursor: not-allowed; color: #64748b; }
 
           .button-group { display: flex; gap: 10px; margin-top: 20px; }
           .save-btn { flex: 2; padding: 12px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
           .cancel-btn { flex: 1; padding: 12px; background: #94a3b8; color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
 
-          /* ARTICLES SECTION */
           .section-title { font-size: 22px; font-weight: 800; color: #030303; margin-bottom: 20px; }
           .article-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
           .article-item { 
