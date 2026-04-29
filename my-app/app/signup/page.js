@@ -93,7 +93,7 @@ export default function Signup() {
         <input type="tel" placeholder="Contact Number" value={contactNumber} onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, ""))} maxLength={11} style={inputStyle} required />
 
         <button onClick={handleSignUp}
-          style={{ width: '100%', padding: '8px', marginTop: '8px', border: 'none', background: '#3039bc', color: 'white', borderRadius: '4px', cursor: 'pointer' }}>
+          style={{ width: '100%', padding: '8px', marginTop: '8px', border: 'none', background: '#a855f7', color: 'white', borderRadius: '4px', cursor: 'pointer' }}>
           Sign Up
         </button>
 

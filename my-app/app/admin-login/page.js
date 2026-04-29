@@ -54,7 +54,7 @@ export default function AdminLogin() {
         <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} style={inputStyle} />
 
         <button onClick={handleLogin}
-          style={{ width: '100%', padding: '8px', marginTop: '8px', border: 'none', background: '#10b981', color: 'white', borderRadius: '4px', cursor: 'pointer' }}>
+          style={{ width: '100%', padding: '8px', marginTop: '8px', border: 'none', background: '#a855f7', color: 'white', borderRadius: '4px', cursor: 'pointer' }}>
           Login
         </button>
 
