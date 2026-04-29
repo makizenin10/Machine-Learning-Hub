@@ -111,6 +111,7 @@ export default function UserProfile() {
             border: 1px solid #374151 !important;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
             transition: all 0.2s ease !important;
+            margin-top: 10px !important;
           }
 
           :global(.back-link:hover) { 
@@ -129,8 +130,8 @@ export default function UserProfile() {
           }
 
           .profile-header { margin-bottom: 25px; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; }
-          .display-name { font-size: 32px; font-weight: 900; color: #111827; margin: 0; }
-          .username-tag { color: #6366f1; font-weight: 700; font-size: 18px; margin: 5px 0 0 0; }
+          .display-name { font-size: 25px; font-weight: 900; color: #111827; margin: 0; }
+          .username-tag { color: #6366f1; font-weight: 700; font-size: 15px; margin: 5px 0 0 0; }
 
           .info-row { display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #f1f5f9; }
           .label { color: #64748b; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }

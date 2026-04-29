@@ -270,9 +270,9 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
         /* Edit Mode Styles */
         .edit-input { width: 100%; font-size: 1.25rem; font-weight: 700; padding: 8px; margin-bottom: 10px; border: 1px solid #a855f7; border-radius: 6px; }
         .edit-textarea { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; margin-bottom: 12px; }
-        .btn-save { background: #10b981; color: white; }
-        .btn-cancel { background: #6b7280; color: white; }
-        .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .btn-save { background: #10b981; color: white; margin-right: 8px; padding: 5px 16px; }
+        .btn-cancel { background: #6b7280; color: white; padding: 5px 16px; }
+        .btn { padding: 5px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
       `}</style>
     </div>
   );
