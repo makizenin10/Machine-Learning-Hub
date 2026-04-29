@@ -76,6 +76,21 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
   }
   if (onDeleted) onDeleted(article.id);
 };
+const handleSaveEdit = async () => {
+  setSaving(true);
+  const { error } = await supabase
+    .from('articles')
+    .update({ title: editTitle, content: editContent })
+    .eq('id', article.id);
+  setSaving(false);
+  if (!error) {
+    article.title = editTitle;
+    article.content = editContent;
+    setIsEditing(false);
+  } else {
+    alert('Edit failed: ' + error.message);
+  }
+};
 
   return (
     <div style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '8px', background: 'white' }}>
