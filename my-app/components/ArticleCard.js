@@ -166,7 +166,7 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
                 border: 'none', borderRadius: '4px',
                 cursor: 'pointer'
               }}>
-              🔥 {count} {hasLiked ? '· Unlike' : '· Like'}
+              🔥 {count}
             </button>
             <button onClick={handleShare}
               style={{ padding: '4px 10px', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer', background: 'white' }}>
