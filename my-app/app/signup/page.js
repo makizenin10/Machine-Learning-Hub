@@ -69,32 +69,40 @@ export default function Signup() {
     }
   };
 
+  const inputStyle = { width: '100%', padding: '8px', margin: '8px 0', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' };
+
   return (
-    <div className="container">
-      <h1>Sign Up</h1>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{
+        background: 'rgba(255, 255, 255, 0.85)',
+        backdropFilter: 'blur(6px)',
+        borderRadius: '12px',
+        padding: '40px',
+        width: '100%',
+        maxWidth: '360px',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+        textAlign: 'center',
+        fontFamily: 'Arial, sans-serif'
+      }}>
+        <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>Sign Up</h1>
 
-      <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-      <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-      <input type="text" placeholder="Full Name" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
-      <input type="number" placeholder="Age" value={age} onChange={(e) => setAge(e.target.value)} required />
-      <input type="tel" placeholder="Contact Number" value={contactNumber} onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, ""))} maxLength={11} required />
+        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} required />
+        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} style={inputStyle} required />
+        <input type="text" placeholder="Full Name" value={fullName} onChange={(e) => setFullName(e.target.value)} style={inputStyle} required />
+        <input type="number" placeholder="Age" value={age} onChange={(e) => setAge(e.target.value)} style={inputStyle} required />
+        <input type="tel" placeholder="Contact Number" value={contactNumber} onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, ""))} maxLength={11} style={inputStyle} required />
 
-      <button onClick={handleSignUp}>Sign Up</button>
+        <button onClick={handleSignUp}
+          style={{ width: '100%', padding: '8px', marginTop: '8px', border: 'none', background: '#3039bc', color: 'white', borderRadius: '4px', cursor: 'pointer' }}>
+          Sign Up
+        </button>
 
-      <p>{message}</p>
-      <p>Already have an account? <Link href="/login">Login here</Link></p>
-      <Link href="/" className="back-link">← Back to Home</Link>
-
-
-      <style jsx>{`
-        h1 { font-size: 24px; font-weight: bold; }
-        .container { max-width: 300px; margin: 50px auto; text-align: center; font-family: Arial, sans-serif; }
-        input { width: 100%; padding: 8px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; }
-        button { width: 100%; padding: 8px; margin-top: 8px; border: none; background: #3039bc; color: white; border-radius: 4px; cursor: pointer; }
-        p { margin-top: 10px; font-size: 14px; }
-        .back-link { display: block; font-size: 13px; color: #6b7280; margin-bottom: 10px; text-decoration: none; }
-        .back-link:hover { color: #374151; }
-      `}</style>
+        <p style={{ marginTop: '10px', fontSize: '14px', color: '#ef4444' }}>{message}</p>
+        <p style={{ fontSize: '14px', marginTop: '8px' }}>Already have an account? <Link href="/login" style={{ color: '#3039bc' }}>Login here</Link></p>
+        <Link href="/" style={{ display: 'block', fontSize: '13px', color: '#6b7280', marginTop: '8px', textDecoration: 'none' }}>
+          ← Back to Home
+        </Link>
+      </div>
     </div>
   );
 }
