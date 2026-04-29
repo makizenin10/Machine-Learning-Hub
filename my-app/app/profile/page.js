@@ -35,6 +35,15 @@ export default function ProfilePage() {
         setAge(profileData.age || "");
         setContactNumber(profileData.contact_number || "");
         setUsername(profileData.username || "");
+      } else {
+        // FIX: If no profile exists yet, set a default object so the page stops loading
+        setProfile({ 
+          email: user.email, 
+          full_name: "", 
+          age: "", 
+          contact_number: "", 
+          username: "" 
+        });
       }
 
       const { data: articleData } = await supabase
@@ -50,15 +59,16 @@ export default function ProfilePage() {
 
   const handleSave = async () => {
     setSaving(true);
+    // Changed to upsert so it creates the row if it's missing (Fixes new user errors)
     const { error } = await supabase
       .from("profiles")
-      .update({
+      .upsert({
+        id: user.id,
         full_name: fullName,
         age: parseInt(age),
         contact_number: contactNumber,
         username: username,
-      })
-      .eq("id", user.id);
+      });
     setSaving(false);
     if (!error) {
       setProfile({ ...profile, full_name: fullName, age, contact_number: contactNumber, username });
