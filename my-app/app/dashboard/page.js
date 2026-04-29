@@ -37,7 +37,8 @@ export default function Dashboard() {
         .select(`
           *,
           profiles (
-            username
+            username,
+            full_name
           )
         `)
         .order("created_at", { ascending: false });

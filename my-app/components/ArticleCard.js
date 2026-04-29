@@ -38,7 +38,7 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
   const fetchComments = async () => {
     const { data, error } = await supabase
       .from('comments')
-      .select('*, profiles(username)')
+      .select('*, profiles(username, full_name)')
       .eq('article_id', article.id)
       .order('created_at', { ascending: true });
     if (!error) setComments(data);
@@ -100,7 +100,7 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
   };
 
   const handleShare = async () => {
-    const authorName = article.profiles?.username || 'an author';
+    const authorName = article.profiles?.full_name || article.profiles?.username || 'an author';
     if (navigator.share) {
       navigator.share({ title: article.title, text: `Check out this article by ${authorName}`, url: window.location.href });
     } else {
@@ -127,7 +127,6 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
     else alert('Edit failed: ' + error.message);
   };
 
-  // Get top-level comments and their replies
   const topComments = comments.filter(c => !c.parent_id);
   const getReplies = (parentId) => comments.filter(c => c.parent_id === parentId);
 
@@ -153,10 +152,11 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
       ) : (
         <>
           <h3>{article.title}</h3>
-          <p style={{ color: '#6b7280', fontSize: '13px' }}>By: {article.profiles?.username || 'Unknown Author'}</p>
+          <p style={{ color: '#6b7280', fontSize: '13px' }}>
+            By: {article.profiles?.full_name || article.profiles?.username || 'Unknown Author'}
+          </p>
           <p>{article.content}</p>
 
-          {/* Action Buttons */}
           <div style={{ display: 'flex', gap: '10px', marginTop: '10px', flexWrap: 'wrap' }}>
             <button onClick={handleLike}
               style={{ padding: '4px 10px', background: hasLiked ? '#f97316' : '#e5e7eb', color: hasLiked ? 'white' : '#374151', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
@@ -184,11 +184,8 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
             )}
           </div>
 
-          {/* Comments Section */}
           {showComments && (
             <div style={{ marginTop: '15px', borderTop: '1px solid #e5e7eb', paddingTop: '15px' }}>
-
-              {/* Add Comment */}
               <div style={{ display: 'flex', gap: '8px', marginBottom: '15px' }}>
                 <input
                   value={newComment}
@@ -202,16 +199,14 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
                 </button>
               </div>
 
-              {/* Comments List */}
               {topComments.length === 0 ? (
                 <p style={{ color: '#9ca3af', fontSize: '13px' }}>No comments yet. Be the first!</p>
               ) : (
                 topComments.map(comment => (
                   <div key={comment.id} style={{ marginBottom: '12px' }}>
-                    {/* Comment */}
                     <div style={{ background: '#f9fafb', padding: '8px 12px', borderRadius: '6px' }}>
                       <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '2px' }}>
-                        <strong>{comment.profiles?.username || 'Unknown'}</strong>
+                        <strong>{comment.profiles?.full_name || comment.profiles?.username || 'Unknown'}</strong>
                       </p>
                       <p style={{ fontSize: '14px', margin: 0 }}>{comment.content}</p>
                       <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
@@ -228,7 +223,6 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
                       </div>
                     </div>
 
-                    {/* Reply Input */}
                     {replyingTo === comment.id && (
                       <div style={{ display: 'flex', gap: '8px', marginTop: '6px', marginLeft: '20px' }}>
                         <input
@@ -248,11 +242,10 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
                       </div>
                     )}
 
-                    {/* Replies */}
                     {getReplies(comment.id).map(reply => (
                       <div key={reply.id} style={{ marginLeft: '20px', marginTop: '6px', background: '#f3f4f6', padding: '8px 12px', borderRadius: '6px' }}>
                         <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '2px' }}>
-                          <strong>{reply.profiles?.username || 'Unknown'}</strong>
+                          <strong>{reply.profiles?.full_name || reply.profiles?.username || 'Unknown'}</strong>
                         </p>
                         <p style={{ fontSize: '14px', margin: 0 }}>{reply.content}</p>
                         {(currentUserId === reply.user_id || isAdmin) && (
