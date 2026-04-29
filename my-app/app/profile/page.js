@@ -91,6 +91,15 @@ export default function ProfilePage() {
               <input value={fullName} onChange={(e) => setFullName(e.target.value)} />
             </div>
             <div className="field">
+              <label>Email</label>
+              <input
+                value={profile.email}
+                readOnly
+                onClick={() => alert('To change your email, please contact the admin.')}
+                style={{ padding: '8px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '14px', background: '#f3f4f6', cursor: 'pointer' }}
+              />
+            </div>
+            <div className="field">
               <label>Age</label>
               <input type="number" value={age} onChange={(e) => setAge(e.target.value)} />
             </div>
