@@ -10,96 +10,120 @@ export default function Signup() {
   const [age, setAge] = useState("");
   const [contactNumber, setContactNumber] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSignUp = async () => {
+    // 1. Validation
     if (!email.trim() || !password.trim() || !fullName.trim() || !age.trim() || !contactNumber.trim()) {
       setMessage("Please fill in all fields before signing up.");
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setMessage("Please enter a valid email address.");
+    setLoading(true);
+    setMessage("Processing signup...");
+
+    // 2. Auth Signup
+    const { data, error: authError } = await supabase.auth.signUp({ 
+      email, 
+      password 
+    });
+
+    if (authError) {
+      setMessage(authError.message);
+      setLoading(false);
       return;
     }
 
-    const ageValue = parseInt(age, 10);
-    if (Number.isNaN(ageValue) || ageValue <= 0) {
-      setMessage("Please enter a valid age.");
-      return;
-    }
+    if (data.user) {
+      // 3. THE FIX: Wait 1.5 seconds for the Auth user to be recognized by the DB
+      setMessage("Finalizing account... please wait.");
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\[\]{};':"\\|,.<>\/?]).{8,}$/;
-    if (!passwordRegex.test(password)) {
-      setMessage("Password must be at least 8 characters and include uppercase, lowercase, number, and symbol.");
-      return;
-    }
+      // 4. Profile Insertion
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert([{
+          id: data.user.id,
+          email,
+          full_name: fullName,
+          age: parseInt(age),
+          contact_number: contactNumber,
+          role: 'user'
+        }]);
 
-    const phoneRegex = /^\d{11}$/;
-    if (!phoneRegex.test(contactNumber)) {
-      setMessage("Contact number must be exactly 11 digits.");
-      return;
-    }
-
-    const { data, error } = await supabase.auth.signUp({ email, password });
-
-    if (error) {
-      setMessage(error.message);
-    } else {
-      if (data.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert([{
-            id: data.user.id,
-            email,
-            full_name: fullName,
-            age: parseInt(age),
-            contact_number: contactNumber,
-            role: 'user'
-          }]);
-
-        if (profileError) {
-          setMessage("Signup successful but profile save failed: " + profileError.message);
-        } else {
-          setMessage("Sign up successful! Check your email for confirmation.");
-        }
+      if (profileError) {
+        console.error("Profile Error Detail:", profileError);
+        setMessage("Signup successful but profile save failed: " + profileError.message);
       } else {
-        setMessage("Sign up successful! Check your email for confirmation.");
+        setMessage("Sign up successful! You can now log in.");
       }
     }
+    setLoading(false);
   };
 
-  const inputStyle = { width: '100%', padding: '8px', margin: '8px 0', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' };
+  const inputStyle = { 
+    width: '100%', 
+    padding: '10px', 
+    margin: '8px 0', 
+    border: '1px solid #ddd', 
+    borderRadius: '6px', 
+    boxSizing: 'border-box' 
+  };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ 
+      minHeight: '100vh', 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center',
+      background: '#f3f4f6 url("https://www.transparenttextures.com/patterns/circuit-board.png")'
+    }}>
       <div style={{
-        background: 'rgba(255, 255, 255, 0.85)',
-        backdropFilter: 'blur(6px)',
-        borderRadius: '12px',
+        background: 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(10px)',
+        borderRadius: '16px',
         padding: '40px',
         width: '100%',
-        maxWidth: '360px',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-        textAlign: 'center',
-        fontFamily: 'Arial, sans-serif'
+        maxWidth: '400px',
+        boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+        textAlign: 'center'
       }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>Sign Up</h1>
+        <h1 style={{ fontSize: '28px', fontWeight: '900', color: '#a855f7', marginBottom: '20px' }}>Sign Up</h1>
 
-        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} required />
-        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} style={inputStyle} required />
-        <input type="text" placeholder="Full Name" value={fullName} onChange={(e) => setFullName(e.target.value)} style={inputStyle} required />
-        <input type="number" placeholder="Age" value={age} onChange={(e) => setAge(e.target.value)} style={inputStyle} required />
-        <input type="tel" placeholder="Contact Number" value={contactNumber} onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, ""))} maxLength={11} style={inputStyle} required />
+        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} />
+        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} style={inputStyle} />
+        <input type="text" placeholder="Full Name" value={fullName} onChange={(e) => setFullName(e.target.value)} style={inputStyle} />
+        <input type="number" placeholder="Age" value={age} onChange={(e) => setAge(e.target.value)} style={inputStyle} />
+        <input type="tel" placeholder="Contact Number (11 digits)" value={contactNumber} 
+          onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, ""))} maxLength={11} style={inputStyle} />
 
-        <button onClick={handleSignUp}
-          style={{ width: '100%', padding: '8px', marginTop: '8px', border: 'none', background: '#a855f7', color: 'white', borderRadius: '4px', cursor: 'pointer' }}>
-          Sign Up
+        <button 
+          onClick={handleSignUp}
+          disabled={loading}
+          style={{ 
+            width: '100%', 
+            padding: '12px', 
+            marginTop: '15px', 
+            border: 'none', 
+            background: loading ? '#d8b4fe' : '#a855f7', 
+            color: 'white', 
+            borderRadius: '8px', 
+            cursor: loading ? 'not-allowed' : 'pointer',
+            fontWeight: 'bold',
+            transition: '0.2s'
+          }}>
+          {loading ? "Please wait..." : "Create Account"}
         </button>
 
-        <p style={{ marginTop: '10px', fontSize: '14px', color: '#ef4444' }}>{message}</p>
-        <p style={{ fontSize: '14px', marginTop: '8px' }}>Already have an account? <Link href="/login" style={{ color: '#3039bc' }}>Login here</Link></p>
-        <Link href="/" style={{ display: 'block', fontSize: '13px', color: '#6b7280', marginTop: '8px', textDecoration: 'none' }}>
+        <p style={{ marginTop: '15px', fontSize: '14px', color: message.includes('failed') ? '#ef4444' : '#10b981', fontWeight: '500' }}>
+          {message}
+        </p>
+        
+        <p style={{ fontSize: '14px', marginTop: '12px', color: '#4b5563' }}>
+          Already have an account? <Link href="/login" style={{ color: '#6366f1', fontWeight: 'bold' }}>Login here</Link>
+        </p>
+        
+        <Link href="/" style={{ display: 'block', fontSize: '13px', color: '#9ca3af', marginTop: '15px', textDecoration: 'none' }}>
           ← Back to Home
         </Link>
       </div>
