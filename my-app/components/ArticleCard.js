@@ -33,20 +33,27 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
   }, [currentUserId, article.id]);
 
   const handleLike = async () => {
-    if (hasLiked) return;
-    const { error: likeError } = await supabase
-      .from('likes')
-      .insert([{ user_id: currentUserId, article_id: article.id }]);
+  if (hasLiked) return;
+  
+  const { error: likeError } = await supabase
+    .from('likes')
+    .insert([{ user_id: currentUserId, article_id: article.id }]);
 
-    if (!likeError) {
-      const { error: countError } = await supabase
-        .rpc('increment_counter', { row_id: article.id });
-      if (!countError) {
-        setCount(count + 1);
-        setHasLiked(true);
-      }
-    }
-  };
+  if (likeError) {
+    alert('Like failed: ' + likeError.message); // 👈 shows exact error
+    return;
+  }
+
+  const { error: countError } = await supabase
+    .rpc('increment_counter', { row_id: article.id });
+    
+  if (!countError) {
+    setCount(count + 1);
+    setHasLiked(true);
+  } else {
+    alert('Counter failed: ' + countError.message); // 👈 shows exact error
+  }
+};
 
   const handleShare = async () => {
     const authorName = article.profiles?.username || 'an author';
