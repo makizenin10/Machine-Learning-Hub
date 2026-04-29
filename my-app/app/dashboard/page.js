@@ -53,7 +53,7 @@ export default function Dashboard() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.push("/dashboard");
+    router.push("/"); // This takes them to the landing page (root)
   };
 
   const handleArticleDeleted = (deletedId) => {
