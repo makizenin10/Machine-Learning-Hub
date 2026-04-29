@@ -144,7 +144,6 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
         <>
           <h3>{article.title}</h3>
 
-          {/* Clickable author name and username */}
           <p style={{ color: '#6b7280', fontSize: '13px', margin: '4px 0 8px' }}>
             By:{' '}
             <Link href={`/user/${article.author_id}`}
@@ -160,6 +159,21 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
           </p>
 
           <p>{article.content}</p>
+
+          {/* Attached File */}
+          {article.file_url && (
+            <div style={{ marginTop: '10px', padding: '10px', background: '#f9fafb', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
+              {article.file_type?.startsWith('image/') ? (
+                <img src={article.file_url} alt={article.file_name}
+                  style={{ maxWidth: '100%', borderRadius: '6px', maxHeight: '300px', objectFit: 'cover' }} />
+              ) : (
+                <a href={article.file_url} target="_blank" rel="noopener noreferrer"
+                  style={{ color: '#6366f1', textDecoration: 'none', fontSize: '14px' }}>
+                  📄 {article.file_name}
+                </a>
+              )}
+            </div>
+          )}
 
           <div style={{ display: 'flex', gap: '10px', marginTop: '10px', flexWrap: 'wrap' }}>
             <button onClick={handleLike}

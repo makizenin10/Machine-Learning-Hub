@@ -13,6 +13,8 @@ export default function Dashboard() {
   const [newTitle, setNewTitle] = useState("");
   const [newContent, setNewContent] = useState("");
   const [publishing, setPublishing] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -66,22 +68,48 @@ export default function Dashboard() {
 
     setPublishing(true);
 
+    let file_url = null;
+    let file_name = null;
+    let file_type = null;
+
+    if (selectedFile) {
+      setUploading(true);
+      const fileExt = selectedFile.name.split('.').pop();
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('article-files')
+        .upload(fileName, selectedFile);
+
+      setUploading(false);
+
+      if (uploadError) {
+        alert('File upload failed: ' + uploadError.message);
+        setPublishing(false);
+        return;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from('article-files')
+        .getPublicUrl(fileName);
+
+      file_url = urlData.publicUrl;
+      file_name = selectedFile.name;
+      file_type = selectedFile.type;
+    }
+
     const { data, error } = await supabase
       .from("articles")
-      .insert([
-        {
-          title: newTitle,
-          content: newContent,
-          author_id: user.id,
-          counter: 0
-        }
-      ])
-      .select(`
-        *,
-        profiles (
-          username
-        )
-      `)
+      .insert([{
+        title: newTitle,
+        content: newContent,
+        author_id: user.id,
+        counter: 0,
+        file_url,
+        file_name,
+        file_type
+      }])
+      .select(`*, profiles(username, full_name)`)
       .single();
 
     setPublishing(false);
@@ -90,6 +118,7 @@ export default function Dashboard() {
       setArticles((prev) => [data, ...prev]);
       setNewTitle("");
       setNewContent("");
+      setSelectedFile(null);
       setShowForm(false);
     } else {
       alert("Failed to publish: " + error.message);
@@ -108,7 +137,6 @@ export default function Dashboard() {
           👤 My Profile
         </Link>
       </div>
-
 
       <div style={{ textAlign: 'right', marginBottom: '10px' }}>
         <button className="publish-btn" onClick={() => setShowForm(!showForm)}>
@@ -130,8 +158,29 @@ export default function Dashboard() {
             onChange={(e) => setNewContent(e.target.value)}
             rows={5}
           />
-          <button className="submit-btn" onClick={handlePublish} disabled={publishing}>
-            {publishing ? 'Publishing...' : '🚀 Publish'}
+
+          {/* File Upload */}
+          <div style={{ border: '2px dashed #d1d5db', borderRadius: '6px', padding: '16px', textAlign: 'center' }}>
+            <input
+              type="file"
+              id="file-upload"
+              accept="image/*,.pdf,.doc,.docx"
+              style={{ display: 'none' }}
+              onChange={(e) => setSelectedFile(e.target.files[0])}
+            />
+            <label htmlFor="file-upload" style={{ cursor: 'pointer', color: '#6366f1', fontSize: '14px' }}>
+              📎 {selectedFile ? selectedFile.name : 'Click to attach a file (image or document)'}
+            </label>
+            {selectedFile && (
+              <button onClick={() => setSelectedFile(null)}
+                style={{ marginLeft: '10px', background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '13px' }}>
+                ✕ Remove
+              </button>
+            )}
+          </div>
+
+          <button className="submit-btn" onClick={handlePublish} disabled={publishing || uploading}>
+            {uploading ? '⏳ Uploading...' : publishing ? 'Publishing...' : '🚀 Publish'}
           </button>
         </div>
       )}
@@ -153,7 +202,6 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* Logout at the bottom */}
       <div style={{ textAlign: 'center', marginTop: '40px', paddingBottom: '40px' }}>
         <button className="logout-btn" onClick={handleLogout}>Logout</button>
       </div>
