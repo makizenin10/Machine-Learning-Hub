@@ -60,24 +60,22 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
   };
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure?')) return;
-    const { error } = await supabase.from('articles').delete().eq('id', article.id);
-    if (!error && onDeleted) onDeleted(article.id);
-  };
+  if (!confirm('Are you sure?')) return;
+  const { error, count } = await supabase
+    .from('articles')
+    .delete({ count: 'exact' })
+    .eq('id', article.id);
 
-  const handleSaveEdit = async () => {
-    setSaving(true);
-    const { error } = await supabase
-      .from('articles')
-      .update({ title: editTitle, content: editContent })
-      .eq('id', article.id);
-    setSaving(false);
-    if (!error) {
-      article.title = editTitle;
-      article.content = editContent;
-      setIsEditing(false);
-    }
-  };
+  if (error) {
+    alert('Delete failed: ' + error.message);
+    return;
+  }
+  if (count === 0) {
+    alert('Delete was blocked. Check your Supabase RLS policies.');
+    return;
+  }
+  if (onDeleted) onDeleted(article.id);
+};
 
   return (
     <div style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '8px', background: 'white' }}>
