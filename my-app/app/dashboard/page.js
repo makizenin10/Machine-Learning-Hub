@@ -125,9 +125,7 @@ export default function Dashboard() {
     }
   };
 
-  if (!user) return <div>Loading...</div>;
-
-  // ... (keep all your imports and logic/useEffect exactly the same)
+  if (!user) return <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading...</div>;
 
   return (
     <div className="container">
@@ -154,7 +152,43 @@ export default function Dashboard() {
 
       {showForm && (
         <div className="publish-form">
-           {/* ... keep form contents the same ... */}
+          <input
+            type="text"
+            className="form-input"
+            placeholder="Article Title"
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+          />
+          <textarea
+            className="form-textarea"
+            placeholder="Write your article here..."
+            value={newContent}
+            onChange={(e) => setNewContent(e.target.value)}
+            rows={5}
+          />
+
+          {/* File Upload Section */}
+          <div className="file-upload-zone">
+            <input
+              type="file"
+              id="file-upload"
+              accept="image/*,.pdf,.doc,.docx"
+              style={{ display: 'none' }}
+              onChange={(e) => setSelectedFile(e.target.files[0])}
+            />
+            <label htmlFor="file-upload" className="file-label">
+              📎 {selectedFile ? selectedFile.name : 'Click to attach a file (image or document)'}
+            </label>
+            {selectedFile && (
+              <button onClick={() => setSelectedFile(null)} className="remove-file-btn">
+                ✕ Remove
+              </button>
+            )}
+          </div>
+
+          <button className="submit-btn" onClick={handlePublish} disabled={publishing || uploading}>
+            {uploading ? '⏳ Uploading...' : publishing ? 'Publishing...' : '🚀 Publish'}
+          </button>
         </div>
       )}
 
@@ -198,11 +232,10 @@ export default function Dashboard() {
         }
 
         .app-title { 
-          font-size: 36px; 
+          font-size: 32px; 
           font-weight: 900; 
           letter-spacing: -1px;
           margin: 0;
-          color: #111827;
           background: linear-gradient(to right, #a855f7, #6366f1);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
@@ -217,11 +250,12 @@ export default function Dashboard() {
         /* USER PROFILE LINK */
         .user-nav {
           text-align: right;
+          color: #000000;
         }
 
         .welcome-text {
           font-size: 14px;
-          color: #6b7280;
+          color: #000000;
           margin: 0 0 8px 0;
         }
 
@@ -229,7 +263,7 @@ export default function Dashboard() {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          font-size: 18px; /* Bigger as requested */
+          font-size: 18px;
           font-weight: 600;
           color: #4f46e5; 
           text-decoration: none;
@@ -244,13 +278,66 @@ export default function Dashboard() {
           transform: translateY(-1px);
         }
 
-        .profile-icon {
-          font-size: 20px;
+        /* PUBLISH FORM STYLING */
+        .publish-form {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          background: #f9fafb;
+          padding: 20px;
+          border-radius: 12px;
+          border: 1px solid #e5e7eb;
+          margin-bottom: 25px;
+        }
+
+        .form-input {
+          padding: 10px;
+          border-radius: 6px;
+          border: 1px solid #d1d5db;
+          font-size: 16px;
+        }
+
+        .form-textarea {
+          padding: 10px;
+          border-radius: 6px;
+          border: 1px solid #d1d5db;
+          font-size: 15px;
+          font-family: inherit;
+        }
+
+        .file-upload-zone {
+          border: 2px dashed #d1d5db;
+          border-radius: 6px;
+          padding: 16px;
+          text-align: center;
+          background: white;
+        }
+
+        .file-label { cursor: pointer; color: #6366f1; font-size: 14px; }
+        
+        .remove-file-btn {
+          margin-left: 10px;
+          background: none;
+          border: none;
+          color: #ef4444;
+          cursor: pointer;
+          font-size: 13px;
+          font-weight: bold;
+        }
+
+        .submit-btn {
+          padding: 10px;
+          background: #10b981;
+          color: white;
+          border: none;
+          border-radius: 6px;
+          font-weight: bold;
+          cursor: pointer;
         }
 
         /* ARTICLE FEED TEXT */
         .feed-header { 
-          font-size: 28px; 
+          font-size: 24px; 
           font-weight: 800; 
           color: #1f2937;
           margin: 20px 0;
@@ -269,11 +356,7 @@ export default function Dashboard() {
           border-radius: 10px;
         }
 
-        /* BUTTONS & MISC */
-        .action-bar {
-          text-align: right;
-          margin-bottom: 20px;
-        }
+        .action-bar { text-align: right; margin-bottom: 20px; }
 
         .admin-badge { 
           align-self: flex-start;
@@ -300,22 +383,13 @@ export default function Dashboard() {
 
         .feed { display: flex; flex-direction: column; gap: 20px; }
 
-        .empty-feed {
-          text-align: center;
-          color: #9ca3af;
-          padding: 40px;
-          background: #f9fafb;
-          border-radius: 12px;
-          border: 2px dashed #e5e7eb;
-        }
-
         .footer { text-align: center; margin-top: 60px; padding-bottom: 40px; }
         
         .logout-btn { 
           padding: 10px 24px; 
-          border: 1px solid #e5e7eb; 
-          background: white; 
-          color: #6b7280; 
+          border: 1px solid #d17fef; 
+          background: #d17fef; 
+          color: #000000; 
           font-weight: 500;
           border-radius: 8px; 
           cursor: pointer; 
@@ -323,9 +397,9 @@ export default function Dashboard() {
         }
         
         .logout-btn:hover { 
-          background: #fee2e2; 
-          color: #ef4444; 
-          border-color: #fecaca;
+          background: #9953b3; 
+          color: #f5f4f4; 
+          border-color: #000000;
         }
       `}</style>
     </div>
