@@ -13,7 +13,6 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
 
   const handleSignUp = async () => {
-    // 1. Validation
     if (!email.trim() || !password.trim() || !fullName.trim() || !age.trim() || !contactNumber.trim()) {
       setMessage("Please fill in all fields before signing up.");
       return;
@@ -22,7 +21,6 @@ export default function Signup() {
     setLoading(true);
     setMessage("Processing signup...");
 
-    // 2. Auth Signup
     const { data, error: authError } = await supabase.auth.signUp({ 
       email, 
       password 
@@ -35,11 +33,9 @@ export default function Signup() {
     }
 
     if (data.user) {
-      // 3. THE FIX: Wait 1.5 seconds for the Auth user to be recognized by the DB
       setMessage("Finalizing account... please wait.");
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      // 4. Profile Insertion
       const { error: profileError } = await supabase
         .from('profiles')
         .insert([{
@@ -61,72 +57,133 @@ export default function Signup() {
     setLoading(false);
   };
 
-  const inputStyle = { 
-    width: '100%', 
-    padding: '10px', 
-    margin: '8px 0', 
-    border: '1px solid #ddd', 
-    borderRadius: '6px', 
-    boxSizing: 'border-box' 
-  };
-
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center',
-      background: '#f3f4f6 url("https://www.transparenttextures.com/patterns/circuit-board.png")'
-    }}>
-      <div style={{
-        background: 'rgba(255, 255, 255, 0.95)',
-        backdropFilter: 'blur(10px)',
-        borderRadius: '16px',
-        padding: '40px',
-        width: '100%',
-        maxWidth: '400px',
-        boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-        textAlign: 'center'
-      }}>
-        <h1 style={{ fontSize: '28px', fontWeight: '900', color: '#a855f7', marginBottom: '20px' }}>Sign Up</h1>
+    <div className="signup-wrapper">
+      <div className="signup-card">
+        <h1 className="signup-title">Sign Up</h1>
 
-        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} />
-        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} style={inputStyle} />
-        <input type="text" placeholder="Full Name" value={fullName} onChange={(e) => setFullName(e.target.value)} style={inputStyle} />
-        <input type="number" placeholder="Age" value={age} onChange={(e) => setAge(e.target.value)} style={inputStyle} />
-        <input type="tel" placeholder="Contact Number (11 digits)" value={contactNumber} 
-          onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, ""))} maxLength={11} style={inputStyle} />
+        <div className="input-group">
+          <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="signup-input" />
+          <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="signup-input" />
+          <input type="text" placeholder="Full Name" value={fullName} onChange={(e) => setFullName(e.target.value)} className="signup-input" />
+          <input type="number" placeholder="Age" value={age} onChange={(e) => setAge(e.target.value)} className="signup-input" />
+          <input type="tel" placeholder="Contact Number (11 digits)" value={contactNumber} 
+            onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, ""))} maxLength={11} className="signup-input" />
+        </div>
 
-        <button 
-          onClick={handleSignUp}
-          disabled={loading}
-          style={{ 
-            width: '100%', 
-            padding: '12px', 
-            marginTop: '15px', 
-            border: 'none', 
-            background: loading ? '#d8b4fe' : '#a855f7', 
-            color: 'white', 
-            borderRadius: '8px', 
-            cursor: loading ? 'not-allowed' : 'pointer',
-            fontWeight: 'bold',
-            transition: '0.2s'
-          }}>
+        <button onClick={handleSignUp} disabled={loading} className="signup-btn">
           {loading ? "Please wait..." : "Create Account"}
         </button>
 
-        <p style={{ marginTop: '15px', fontSize: '14px', color: message.includes('failed') ? '#ef4444' : '#10b981', fontWeight: '500' }}>
+        <p className={`status-text ${message.includes('failed') ? 'error' : 'success'}`}>
           {message}
         </p>
         
-        <p style={{ fontSize: '14px', marginTop: '12px', color: '#4b5563' }}>
-          Already have an account? <Link href="/login" style={{ color: '#6366f1', fontWeight: 'bold' }}>Login here</Link>
+        <p className="footer-text">
+          Already have an account? <Link href="/login" className="login-link">Login here</Link>
         </p>
         
-        <Link href="/" style={{ display: 'block', fontSize: '13px', color: '#9ca3af', marginTop: '15px', textDecoration: 'none' }}>
+        <Link href="/" className="home-link">
           ← Back to Home
         </Link>
       </div>
+
+      <style jsx>{`
+        .signup-wrapper {
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: #f3f4f6 url("https://www.transparenttextures.com/patterns/circuit-board.png");
+          padding: 20px;
+        }
+        .signup-card {
+          background: rgba(255, 255, 255, 0.95);
+          backdrop-filter: blur(10px);
+          border-radius: 20px;
+          padding: 40px;
+          width: 100%;
+          maxWidth: 400px;
+          boxShadow: 0 20px 40px rgba(0,0,0,0.1);
+          text-align: center;
+          border: 1px solid rgba(255,255,255,0.3);
+        }
+        .signup-title {
+          font-size: 32px;
+          font-weight: 900;
+          color: #a855f7;
+          margin-bottom: 25px;
+          letter-spacing: -1px;
+        }
+        .input-group {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          margin-bottom: 20px;
+        }
+        .signup-input {
+          width: 100%;
+          padding: 12px 16px;
+          border: 1px solid #e5e7eb;
+          border-radius: 10px;
+          font-size: 15px;
+          transition: all 0.2s;
+          box-sizing: border-box;
+        }
+        .signup-input:focus {
+          outline: none;
+          border-color: #a855f7;
+          box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
+        }
+        .signup-btn {
+          width: 100%;
+          padding: 14px;
+          border: none;
+          background: #a855f7;
+          color: white;
+          border-radius: 12px;
+          cursor: pointer;
+          font-weight: 800;
+          font-size: 16px;
+          transition: all 0.3s;
+          box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+        }
+        .signup-btn:hover:not(:disabled) {
+          background: #9333ea;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 15px rgba(168, 85, 247, 0.4);
+        }
+        .signup-btn:disabled {
+          background: #d8b4fe;
+          cursor: not-allowed;
+        }
+        .status-text {
+          margin-top: 15px;
+          font-size: 14px;
+          font-weight: 600;
+        }
+        .status-text.error { color: #ef4444; }
+        .status-text.success { color: #10b981; }
+        .footer-text {
+          font-size: 14px;
+          margin-top: 20px;
+          color: #4b5563;
+        }
+        .login-link {
+          color: #6366f1;
+          font-weight: 700;
+          text-decoration: none;
+        }
+        .home-link {
+          display: block;
+          margin-top: 20px;
+          font-size: 13px;
+          color: #9ca3af;
+          text-decoration: none;
+          transition: color 0.2s;
+        }
+        .home-link:hover { color: #6b7280; }
+      `}</style>
     </div>
   );
 }
