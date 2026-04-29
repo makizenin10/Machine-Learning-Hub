@@ -95,7 +95,7 @@ export default function ProfilePage() {
               <input
                 value={profile.email}
                 readOnly
-                onClick={() => alert('To change your email, please contact the admin.')}
+                onClick={() => alert('To change your email, please contact the admin.\n\n📧 Email: manaayjerica@gmail.com\n📞 Contact: 09686336110')}
                 style={{ padding: '8px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '14px', background: '#f3f4f6', cursor: 'pointer' }}
               />
             </div>
