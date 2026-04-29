@@ -11,16 +11,30 @@ export default function Login() {
   const router = useRouter();
 
   const handleLogin = async () => {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
     if (error) {
       setMessage(error.message);
-    } else {
-      router.push("/dashboard");
+      return;
     }
+
+    // Block admins from using user login
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', data.user.id)
+      .single();
+
+    if (profile?.role === 'admin') {
+      await supabase.auth.signOut();
+      setMessage('You are an admin. Please use the Admin Login page.');
+      return;
+    }
+
+    router.push("/dashboard");
   };
 
   const handleForgotPassword = async () => {
@@ -58,24 +72,22 @@ export default function Login() {
 
       <button onClick={handleLogin}>Login</button>
 
-      <button onClick={handleForgotPassword} style={{ background: '#6b7280' }}>Forgot Password?</button>
+      <button onClick={handleForgotPassword} style={{ background: '#6b7280' }}>
+        Forgot Password?
+      </button>
 
       <p>{message}</p>
 
       <p>Don't have an account? <Link href="/signup">Sign up here</Link></p>
 
       <style jsx>{`
-        h1{
-          font-size: 24px;
-          font-weight: bold;
-        }
+        h1 { font-size: 24px; font-weight: bold; }
         .container {
           max-width: 300px;
           margin: 100px auto;
           text-align: center;
           font-family: Arial, sans-serif;
         }
-
         input {
           width: 100%;
           padding: 8px;
@@ -83,7 +95,6 @@ export default function Login() {
           border: 1px solid #ccc;
           border-radius: 4px;
         }
-
         button {
           width: 100%;
           padding: 8px;
@@ -94,11 +105,7 @@ export default function Login() {
           border-radius: 4px;
           cursor: pointer;
         }
-
-        p {
-          margin-top: 10px;
-          font-size: 14px;
-        }
+        p { margin-top: 10px; font-size: 14px; }
       `}</style>
     </div>
   );
