@@ -383,7 +383,7 @@ export default function Dashboard() {
 
         .feed { display: flex; flex-direction: column; gap: 20px; }
 
-        .footer { text-align: center; margin-top: 60px; padding-bottom: 40px; }
+        .footer { text-align: center; margin-top: 10px; padding-bottom: 40px; }
         
         .logout-btn { 
           padding: 10px 24px; 

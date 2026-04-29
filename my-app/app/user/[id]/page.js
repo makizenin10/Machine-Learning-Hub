@@ -35,53 +35,129 @@ export default function UserProfile() {
     getData();
   }, [id]);
 
-  if (loading) return <div style={{ textAlign: 'center', marginTop: '100px' }}>Loading...</div>;
-  if (!profile) return <div style={{ textAlign: 'center', marginTop: '100px' }}>User not found.</div>;
+  if (loading) return <div className="loading-screen">Loading Profile...</div>;
+  if (!profile) return <div className="loading-screen">User not found.</div>;
 
   return (
-    <div className="container">
-      <Link href="/dashboard" className="back-link">← Back to Dashboard</Link>
+    <div className="main-wrapper">
+      <div className="container">
+        <div className="header">
+          <Link href="/dashboard" className="back-link">
+            ← Back to Dashboard
+          </Link>
+        </div>
 
-      <div className="card">
-        <h1>{profile.full_name || profile.username || 'Unknown User'}</h1>
-        <p className="username">@{profile.username || '—'}</p>
-        <div className="info-row"><span className="label">Email</span><span>{profile.email}</span></div>
-        <div className="info-row"><span className="label">Age</span><span>{profile.age || '—'}</span></div>
-        <div className="info-row"><span className="label">Contact</span><span>{profile.contact_number || '—'}</span></div>
-      </div>
+        <div className="profile-card">
+          <div className="profile-header">
+            <h1 className="display-name">{profile.full_name || profile.username || 'Unknown User'}</h1>
+            <p className="username-tag">@{profile.username || 'user'}</p>
+          </div>
 
-      <div className="articles-section">
-        <h2>Articles by {profile.full_name || profile.username} ({articles.length})</h2>
-        {articles.length === 0 ? (
-          <p style={{ color: '#9ca3af' }}>No articles published yet.</p>
-        ) : (
-          articles.map(article => (
-            <div key={article.id} className="article-item">
-              <h3>{article.title}</h3>
-              <p>{article.content}</p>
-              <p style={{ fontSize: '12px', color: '#9ca3af' }}>
-                {new Date(article.created_at).toLocaleDateString()}
-              </p>
+          <div className="info-section">
+            <div className="info-row">
+              <span className="label">Email</span>
+              <span className="value">{profile.email}</span>
             </div>
-          ))
-        )}
-      </div>
+            <div className="info-row">
+              <span className="label">Age</span>
+              <span className="value">{profile.age || '—'}</span>
+            </div>
+            <div className="info-row">
+              <span className="label">Contact</span>
+              <span className="value">{profile.contact_number || '—'}</span>
+            </div>
+          </div>
+        </div>
 
-      <style jsx>{`
-        .container { max-width: 700px; margin: 40px auto; font-family: Arial, sans-serif; padding: 0 20px; }
-        .back-link { font-size: 13px; color: #6b7280; text-decoration: none; }
-        .back-link:hover { color: #374151; }
-        .card { background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin: 20px 0; }
-        h1 { font-size: 22px; font-weight: bold; margin-bottom: 4px; }
-        .username { color: #6b7280; font-size: 14px; margin-bottom: 16px; }
-        .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f3f4f6; font-size: 14px; }
-        .label { color: #6b7280; font-weight: bold; }
-        h2 { font-size: 18px; font-weight: bold; margin-bottom: 12px; }
-        .articles-section { margin-top: 10px; }
-        .article-item { background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; margin-bottom: 10px; }
-        .article-item h3 { font-size: 16px; font-weight: bold; margin-bottom: 4px; }
-        .article-item p { font-size: 14px; color: #374151; margin: 0; }
-      `}</style>
+        <div className="articles-section">
+          <h2 className="section-title">Articles by {profile.full_name || profile.username} ({articles.length})</h2>
+          {articles.length === 0 ? (
+            <p className="empty-text">No articles published yet.</p>
+          ) : (
+            <div className="article-grid">
+              {articles.map(article => (
+                <div key={article.id} className="article-item">
+                  <h3>{article.title}</h3>
+                  <p className="article-preview">{article.content.substring(0, 150)}...</p>
+                  <span className="article-date">
+                    {new Date(article.created_at).toLocaleDateString()}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <style jsx>{`
+          .main-wrapper {
+            min-height: 100vh;
+            background: #f3f4f6 url('https://www.transparenttextures.com/patterns/circuit-board.png');
+            padding: 40px 20px;
+          }
+          .container { max-width: 800px; margin: 0 auto; font-family: 'Inter', system-ui, sans-serif; }
+          
+          .header { margin-bottom: 25px; }
+
+          /* BACK BUTTON BOX STYLE */
+          :global(.back-link) { 
+            display: inline-block !important;
+            font-size: 14px !important; 
+            color: #ffffff !important; 
+            text-decoration: none !important; 
+            font-weight: 700 !important; 
+            background: #1f2937 !important; 
+            padding: 10px 20px !important;
+            border-radius: 8px !important;
+            border: 1px solid #374151 !important;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
+            transition: all 0.2s ease !important;
+          }
+
+          :global(.back-link:hover) { 
+            background: #000000 !important; 
+            transform: translateX(-3px) !important;
+          }
+
+          .profile-card { 
+            background: rgba(255, 255, 255, 0.98); 
+            backdrop-filter: blur(10px);
+            border-radius: 16px; 
+            padding: 35px; 
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px; 
+            border: 1px solid #e2e8f0;
+          }
+
+          .profile-header { margin-bottom: 25px; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; }
+          .display-name { font-size: 32px; font-weight: 900; color: #111827; margin: 0; }
+          .username-tag { color: #6366f1; font-weight: 700; font-size: 18px; margin: 5px 0 0 0; }
+
+          .info-row { display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #f1f5f9; }
+          .label { color: #64748b; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+          
+          /* SHARP BLACK VALUES */
+          .value { color: #000000; font-weight: 700; font-size: 15px; }
+
+          .section-title { font-size: 22px; font-weight: 800; color: #111827; margin-bottom: 20px; }
+          .article-grid { display: flex; flex-direction: column; gap: 15px; }
+          
+          .article-item { 
+            background: white; 
+            border: 1px solid #e2e8f0; 
+            border-radius: 12px; 
+            padding: 20px; 
+            transition: 0.2s;
+          }
+          .article-item:hover { transform: translateY(-2px); border-color: #6366f1; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+          
+          .article-item h3 { font-size: 18px; margin: 0 0 10px 0; color: #111827; font-weight: 800; }
+          .article-preview { color: #475569; font-size: 14px; line-height: 1.6; margin-bottom: 12px; }
+          .article-date { font-size: 12px; color: #94a3b8; font-weight: 600; }
+
+          .empty-text { color: #94a3b8; font-style: italic; }
+          .loading-screen { text-align: center; margin-top: 100px; font-weight: 700; color: #6366f1; font-family: sans-serif; }
+        `}</style>
+      </div>
     </div>
   );
 }
