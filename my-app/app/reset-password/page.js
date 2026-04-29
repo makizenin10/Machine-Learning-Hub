@@ -67,7 +67,6 @@ export default function ResetPassword() {
     <div className="main-wrapper">
       <div className="container">
         <h1>Reset Password</h1>
-        <p className="subtitle">Enter your new secure password below.</p>
 
         <div className="input-group">
           <input
