@@ -1,6 +1,7 @@
 'use client';
 import { supabase } from '@/lib/supabaseClient';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 export default function ArticleCard({ article, currentUserId, currentUserRole, onDeleted }) {
   const [count, setCount] = useState(article.counter || 0);
@@ -54,12 +55,8 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
     const { error } = await supabase
       .from('comments')
       .insert([{ article_id: article.id, user_id: currentUserId, content: newComment, parent_id: null }]);
-    if (!error) {
-      setNewComment('');
-      await fetchComments();
-    } else {
-      alert('Comment failed: ' + error.message);
-    }
+    if (!error) { setNewComment(''); await fetchComments(); }
+    else alert('Comment failed: ' + error.message);
   };
 
   const handleAddReply = async (parentId) => {
@@ -67,13 +64,8 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
     const { error } = await supabase
       .from('comments')
       .insert([{ article_id: article.id, user_id: currentUserId, content: replyText, parent_id: parentId }]);
-    if (!error) {
-      setReplyText('');
-      setReplyingTo(null);
-      await fetchComments();
-    } else {
-      alert('Reply failed: ' + error.message);
-    }
+    if (!error) { setReplyText(''); setReplyingTo(null); await fetchComments(); }
+    else alert('Reply failed: ' + error.message);
   };
 
   const handleDeleteComment = async (commentId) => {
@@ -84,15 +76,14 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
 
   const handleLike = async () => {
     if (hasLiked) {
-      const { error: unlikeError } = await supabase
-        .from('likes').delete()
+      const { error: unlikeError } = await supabase.from('likes').delete()
         .eq('user_id', currentUserId).eq('article_id', article.id);
       if (unlikeError) { alert('Unlike failed: ' + unlikeError.message); return; }
       const { error: countError } = await supabase.rpc('decrement_counter', { row_id: article.id });
       if (!countError) { setCount(count - 1); setHasLiked(false); }
     } else {
-      const { error: likeError } = await supabase
-        .from('likes').insert([{ user_id: currentUserId, article_id: article.id }]);
+      const { error: likeError } = await supabase.from('likes')
+        .insert([{ user_id: currentUserId, article_id: article.id }]);
       if (likeError) { alert('Like failed: ' + likeError.message); return; }
       const { error: countError } = await supabase.rpc('increment_counter', { row_id: article.id });
       if (!countError) { setCount(count + 1); setHasLiked(true); }
@@ -120,8 +111,8 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
 
   const handleSaveEdit = async () => {
     setSaving(true);
-    const { error } = await supabase
-      .from('articles').update({ title: editTitle, content: editContent }).eq('id', article.id);
+    const { error } = await supabase.from('articles')
+      .update({ title: editTitle, content: editContent }).eq('id', article.id);
     setSaving(false);
     if (!error) { article.title = editTitle; article.content = editContent; setIsEditing(false); }
     else alert('Edit failed: ' + error.message);
@@ -152,9 +143,22 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
       ) : (
         <>
           <h3>{article.title}</h3>
-          <p style={{ color: '#6b7280', fontSize: '13px' }}>
-            By: {article.profiles?.full_name || article.profiles?.username || 'Unknown Author'}
+
+          {/* Clickable author name and username */}
+          <p style={{ color: '#6b7280', fontSize: '13px', margin: '4px 0 8px' }}>
+            By:{' '}
+            <Link href={`/user/${article.author_id}`}
+              style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: 'bold' }}>
+              {article.profiles?.full_name || 'Unknown Author'}
+            </Link>
+            {article.profiles?.username && (
+              <Link href={`/user/${article.author_id}`}
+                style={{ color: '#9ca3af', textDecoration: 'none', fontSize: '12px', marginLeft: '4px' }}>
+                (@{article.profiles?.username})
+              </Link>
+            )}
           </p>
+
           <p>{article.content}</p>
 
           <div style={{ display: 'flex', gap: '10px', marginTop: '10px', flexWrap: 'wrap' }}>
@@ -187,12 +191,9 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
           {showComments && (
             <div style={{ marginTop: '15px', borderTop: '1px solid #e5e7eb', paddingTop: '15px' }}>
               <div style={{ display: 'flex', gap: '8px', marginBottom: '15px' }}>
-                <input
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
+                <input value={newComment} onChange={(e) => setNewComment(e.target.value)}
                   placeholder="Write a comment..."
-                  style={{ flex: 1, padding: '6px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '13px' }}
-                />
+                  style={{ flex: 1, padding: '6px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '13px' }} />
                 <button onClick={handleAddComment}
                   style={{ padding: '6px 12px', background: '#6366f1', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }}>
                   Post
@@ -207,6 +208,11 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
                     <div style={{ background: '#f9fafb', padding: '8px 12px', borderRadius: '6px' }}>
                       <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '2px' }}>
                         <strong>{comment.profiles?.full_name || comment.profiles?.username || 'Unknown'}</strong>
+                        {comment.profiles?.username && (
+                          <span style={{ color: '#9ca3af', fontWeight: 'normal', marginLeft: '4px' }}>
+                            (@{comment.profiles?.username})
+                          </span>
+                        )}
                       </p>
                       <p style={{ fontSize: '14px', margin: 0 }}>{comment.content}</p>
                       <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
@@ -225,12 +231,9 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
 
                     {replyingTo === comment.id && (
                       <div style={{ display: 'flex', gap: '8px', marginTop: '6px', marginLeft: '20px' }}>
-                        <input
-                          value={replyText}
-                          onChange={(e) => setReplyText(e.target.value)}
+                        <input value={replyText} onChange={(e) => setReplyText(e.target.value)}
                           placeholder="Write a reply..."
-                          style={{ flex: 1, padding: '6px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '13px' }}
-                        />
+                          style={{ flex: 1, padding: '6px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '13px' }} />
                         <button onClick={() => handleAddReply(comment.id)}
                           style={{ padding: '6px 12px', background: '#6366f1', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }}>
                           Reply
@@ -246,6 +249,11 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
                       <div key={reply.id} style={{ marginLeft: '20px', marginTop: '6px', background: '#f3f4f6', padding: '8px 12px', borderRadius: '6px' }}>
                         <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '2px' }}>
                           <strong>{reply.profiles?.full_name || reply.profiles?.username || 'Unknown'}</strong>
+                          {reply.profiles?.username && (
+                            <span style={{ color: '#9ca3af', fontWeight: 'normal', marginLeft: '4px' }}>
+                              (@{reply.profiles?.username})
+                            </span>
+                          )}
                         </p>
                         <p style={{ fontSize: '14px', margin: 0 }}>{reply.content}</p>
                         {(currentUserId === reply.user_id || isAdmin) && (
