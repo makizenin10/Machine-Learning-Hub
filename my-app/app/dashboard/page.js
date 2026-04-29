@@ -109,7 +109,6 @@ export default function Dashboard() {
         </Link>
       </div>
 
-      <hr />
 
       <div style={{ textAlign: 'right', marginBottom: '10px' }}>
         <button className="publish-btn" onClick={() => setShowForm(!showForm)}>
