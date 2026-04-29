@@ -51,7 +51,6 @@ export default function Login() {
   return (
     <div className="container">
       <h1>Login</h1>
-      <Link href="/" className="back-link">← Back to Home</Link>
 
       <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
       <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
@@ -61,6 +60,7 @@ export default function Login() {
 
       <p>{message}</p>
       <p>Don't have an account? <Link href="/signup">Sign up here</Link></p>
+      <Link href="/" className="back-link">← Back to Home</Link>
 
       <style jsx>{`
         h1 { font-size: 24px; font-weight: bold; }

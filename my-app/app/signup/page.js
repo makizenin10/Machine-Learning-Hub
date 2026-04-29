@@ -72,7 +72,6 @@ export default function Signup() {
   return (
     <div className="container">
       <h1>Sign Up</h1>
-      <Link href="/" className="back-link">← Back to Home</Link>
 
       <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
       <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
@@ -84,6 +83,8 @@ export default function Signup() {
 
       <p>{message}</p>
       <p>Already have an account? <Link href="/login">Login here</Link></p>
+      <Link href="/" className="back-link">← Back to Home</Link>
+
 
       <style jsx>{`
         h1 { font-size: 24px; font-weight: bold; }
