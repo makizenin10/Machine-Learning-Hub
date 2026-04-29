@@ -10,7 +10,7 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
   const [editContent, setEditContent] = useState(article.content);
   const [saving, setSaving] = useState(false);
 
-  const isOwner = currentUserId === article.author_id; 
+  const isOwner = currentUserId === article.author_id;
   const isAdmin = currentUserRole === 'admin';
   const canEdit = isOwner;
   const canDelete = isOwner || isAdmin;
@@ -30,27 +30,50 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
   }, [currentUserId, article.id]);
 
   const handleLike = async () => {
-  if (hasLiked) return;
-  
-  const { error: likeError } = await supabase
-    .from('likes')
-    .insert([{ user_id: currentUserId, article_id: article.id }]);
+    if (hasLiked) {
+      // Unlike
+      const { error: unlikeError } = await supabase
+        .from('likes')
+        .delete()
+        .eq('user_id', currentUserId)
+        .eq('article_id', article.id);
 
-  if (likeError) {
-    alert('Like failed: ' + likeError.message); // 👈 shows exact error
-    return;
-  }
+      if (unlikeError) {
+        alert('Unlike failed: ' + unlikeError.message);
+        return;
+      }
 
-  const { error: countError } = await supabase
-    .rpc('increment_counter', { row_id: article.id });
-    
-  if (!countError) {
-    setCount(count + 1);
-    setHasLiked(true);
-  } else {
-    alert('Counter failed: ' + countError.message); // 👈 shows exact error
-  }
-};
+      const { error: countError } = await supabase
+        .rpc('decrement_counter', { row_id: article.id });
+
+      if (!countError) {
+        setCount(count - 1);
+        setHasLiked(false);
+      } else {
+        alert('Counter failed: ' + countError.message);
+      }
+    } else {
+      // Like
+      const { error: likeError } = await supabase
+        .from('likes')
+        .insert([{ user_id: currentUserId, article_id: article.id }]);
+
+      if (likeError) {
+        alert('Like failed: ' + likeError.message);
+        return;
+      }
+
+      const { error: countError } = await supabase
+        .rpc('increment_counter', { row_id: article.id });
+
+      if (!countError) {
+        setCount(count + 1);
+        setHasLiked(true);
+      } else {
+        alert('Counter failed: ' + countError.message);
+      }
+    }
+  };
 
   const handleShare = async () => {
     const authorName = article.profiles?.username || 'an author';
@@ -67,46 +90,64 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
   };
 
   const handleDelete = async () => {
-  if (!confirm('Are you sure?')) return;
-  const { error, count } = await supabase
-    .from('articles')
-    .delete({ count: 'exact' })
-    .eq('id', article.id);
+    if (!confirm('Are you sure?')) return;
+    const { error, count: deleteCount } = await supabase
+      .from('articles')
+      .delete({ count: 'exact' })
+      .eq('id', article.id);
 
-  if (error) {
-    alert('Delete failed: ' + error.message);
-    return;
-  }
-  if (count === 0) {
-    alert('Delete was blocked. Check your Supabase RLS policies.');
-    return;
-  }
-  if (onDeleted) onDeleted(article.id);
-};
-const handleSaveEdit = async () => {
-  setSaving(true);
-  const { error } = await supabase
-    .from('articles')
-    .update({ title: editTitle, content: editContent })
-    .eq('id', article.id);
-  setSaving(false);
-  if (!error) {
-    article.title = editTitle;
-    article.content = editContent;
-    setIsEditing(false);
-  } else {
-    alert('Edit failed: ' + error.message);
-  }
-};
+    if (error) {
+      alert('Delete failed: ' + error.message);
+      return;
+    }
+    if (deleteCount === 0) {
+      alert('Delete was blocked. Check your Supabase RLS policies.');
+      return;
+    }
+    if (onDeleted) onDeleted(article.id);
+  };
+
+  const handleSaveEdit = async () => {
+    setSaving(true);
+    const { error } = await supabase
+      .from('articles')
+      .update({ title: editTitle, content: editContent })
+      .eq('id', article.id);
+    setSaving(false);
+    if (!error) {
+      article.title = editTitle;
+      article.content = editContent;
+      setIsEditing(false);
+    } else {
+      alert('Edit failed: ' + error.message);
+    }
+  };
 
   return (
     <div style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '8px', background: 'white' }}>
       {isEditing ? (
         <>
-          <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} style={{ width: '100%', marginBottom: '10px' }} />
-          <textarea value={editContent} onChange={(e) => setEditContent(e.target.value)} rows={4} style={{ width: '100%' }} />
-          <button onClick={handleSaveEdit} disabled={saving}>{saving ? 'Saving...' : 'Save'}</button>
-          <button onClick={() => setIsEditing(false)}>Cancel</button>
+          <input
+            value={editTitle}
+            onChange={(e) => setEditTitle(e.target.value)}
+            style={{ width: '100%', marginBottom: '10px', padding: '6px', borderRadius: '4px', border: '1px solid #ccc' }}
+          />
+          <textarea
+            value={editContent}
+            onChange={(e) => setEditContent(e.target.value)}
+            rows={4}
+            style={{ width: '100%', padding: '6px', borderRadius: '4px', border: '1px solid #ccc' }}
+          />
+          <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+            <button onClick={handleSaveEdit} disabled={saving}
+              style={{ padding: '6px 12px', background: '#10b981', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+              {saving ? 'Saving...' : '✅ Save'}
+            </button>
+            <button onClick={() => setIsEditing(false)}
+              style={{ padding: '6px 12px', background: '#6b7280', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+              Cancel
+            </button>
+          </div>
         </>
       ) : (
         <>
@@ -115,13 +156,34 @@ const handleSaveEdit = async () => {
             By: {article.profiles?.username || 'Unknown Author'}
           </p>
           <p>{article.content}</p>
-          <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-            <button onClick={handleLike} disabled={hasLiked} style={{ background: hasLiked ? '#eee' : '#f97316', color: hasLiked ? '#999' : 'white' }}>
-              🔥 {count}
+          <div style={{ display: 'flex', gap: '10px', marginTop: '10px', flexWrap: 'wrap' }}>
+            <button
+              onClick={handleLike}
+              style={{
+                padding: '4px 10px',
+                background: hasLiked ? '#f97316' : '#e5e7eb',
+                color: hasLiked ? 'white' : '#374151',
+                border: 'none', borderRadius: '4px',
+                cursor: 'pointer'
+              }}>
+              🔥 {count} {hasLiked ? '· Unlike' : '· Like'}
             </button>
-            <button onClick={handleShare}>🔗 Share</button>
-            {canEdit && <button onClick={() => setIsEditing(true)}>✏️ Edit</button>}
-            {canDelete && <button onClick={handleDelete} style={{ background: '#ef4444', color: 'white' }}>🗑️ Delete</button>}
+            <button onClick={handleShare}
+              style={{ padding: '4px 10px', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer', background: 'white' }}>
+              🔗 Share
+            </button>
+            {canEdit && (
+              <button onClick={() => setIsEditing(true)}
+                style={{ padding: '4px 10px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                ✏️ Edit
+              </button>
+            )}
+            {canDelete && (
+              <button onClick={handleDelete}
+                style={{ padding: '4px 10px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                🗑️ Delete
+              </button>
+            )}
           </div>
         </>
       )}
