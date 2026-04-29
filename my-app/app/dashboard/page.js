@@ -127,18 +127,26 @@ export default function Dashboard() {
 
   if (!user) return <div>Loading...</div>;
 
+  // ... (keep all your imports and logic/useEffect exactly the same)
+
   return (
     <div className="container">
-      <div className="header">
-        <h1>Dashboard</h1>
-        <p>Welcome, {user.email}!</p>
-        {userRole === "admin" && <span className="admin-badge">ADMIN</span>}
-        <Link href="/profile" style={{ fontSize: '13px', color: '#3b82f6', textDecoration: 'none' }}>
-          👤 My Profile
-        </Link>
+      {/* IMPROVED APP HEADER */}
+      <div className="app-navbar">
+        <div className="title-section">
+          <h1 className="app-title">ARTICLE SPACE</h1>
+          {userRole === "admin" && <span className="admin-badge">ADMIN</span>}
+        </div>
+        
+        <div className="user-nav">
+          <p className="welcome-text">Welcome, <strong>{user.email}</strong></p>
+          <Link href="/profile" className="profile-link">
+             <span className="profile-icon">👤</span> My Profile
+          </Link>
+        </div>
       </div>
 
-      <div style={{ textAlign: 'right', marginBottom: '10px' }}>
+      <div className="action-bar">
         <button className="publish-btn" onClick={() => setShowForm(!showForm)}>
           {showForm ? '✕ Cancel' : '✏️ Publish Article'}
         </button>
@@ -146,47 +154,12 @@ export default function Dashboard() {
 
       {showForm && (
         <div className="publish-form">
-          <input
-            type="text"
-            placeholder="Article Title"
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
-          />
-          <textarea
-            placeholder="Write your article here..."
-            value={newContent}
-            onChange={(e) => setNewContent(e.target.value)}
-            rows={5}
-          />
-
-          {/* File Upload */}
-          <div style={{ border: '2px dashed #d1d5db', borderRadius: '6px', padding: '16px', textAlign: 'center' }}>
-            <input
-              type="file"
-              id="file-upload"
-              accept="image/*,.pdf,.doc,.docx"
-              style={{ display: 'none' }}
-              onChange={(e) => setSelectedFile(e.target.files[0])}
-            />
-            <label htmlFor="file-upload" style={{ cursor: 'pointer', color: '#6366f1', fontSize: '14px' }}>
-              📎 {selectedFile ? selectedFile.name : 'Click to attach a file (image or document)'}
-            </label>
-            {selectedFile && (
-              <button onClick={() => setSelectedFile(null)}
-                style={{ marginLeft: '10px', background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '13px' }}>
-                ✕ Remove
-              </button>
-            )}
-          </div>
-
-          <button className="submit-btn" onClick={handlePublish} disabled={publishing || uploading}>
-            {uploading ? '⏳ Uploading...' : publishing ? 'Publishing...' : '🚀 Publish'}
-          </button>
+           {/* ... keep form contents the same ... */}
         </div>
       )}
 
       <div className="feed">
-        <h2>Article Feed</h2>
+        <h2 className="feed-header">Latest Articles</h2>
         {articles.length > 0 ? (
           articles.map((article) => (
             <ArticleCard
@@ -198,23 +171,162 @@ export default function Dashboard() {
             />
           ))
         ) : (
-          <p>No articles found.</p>
+          <p className="empty-feed">No articles found.</p>
         )}
       </div>
 
-      <div style={{ textAlign: 'center', marginTop: '40px', paddingBottom: '40px' }}>
+      <div className="footer">
         <button className="logout-btn" onClick={handleLogout}>Logout</button>
       </div>
 
       <style jsx>{`
-        .container { max-width: 800px; margin: 40px auto; font-family: Arial, sans-serif; padding: 0 20px; }
-        .header { text-align: center; margin-bottom: 30px; }
-        .admin-badge { background: #10b981; color: white; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: bold; }
-        .logout-btn { padding: 8px 16px; border: none; background: #a855f7; color: white; border-radius: 4px; cursor: pointer; }
-        .publish-btn { padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        .publish-form { display: flex; flex-direction: column; gap: 10px; background: #f9fafb; padding: 16px; border-radius: 8px; border: 1px solid #e5e7eb; margin-bottom: 16px; }
-        .submit-btn { padding: 8px 16px; background: #10b981; color: white; border: none; border-radius: 4px; cursor: pointer; align-self: flex-end; }
-        .feed { display: flex; flex-direction: column; gap: 15px; }
+        .container { 
+          max-width: 800px; 
+          margin: 0 auto; 
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+          padding: 40px 20px; 
+        }
+
+        /* HEADER & APP TITLE */
+        .app-navbar {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 40px;
+          border-bottom: 2px solid #f3f4f6;
+          padding-bottom: 20px;
+        }
+
+        .app-title { 
+          font-size: 36px; 
+          font-weight: 900; 
+          letter-spacing: -1px;
+          margin: 0;
+          color: #111827;
+          background: linear-gradient(to right, #a855f7, #6366f1);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+
+        .title-section {
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+        }
+
+        /* USER PROFILE LINK */
+        .user-nav {
+          text-align: right;
+        }
+
+        .welcome-text {
+          font-size: 14px;
+          color: #6b7280;
+          margin: 0 0 8px 0;
+        }
+
+        .profile-link { 
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 18px; /* Bigger as requested */
+          font-weight: 600;
+          color: #4f46e5; 
+          text-decoration: none;
+          padding: 8px 16px;
+          background: #f5f3ff;
+          border-radius: 10px;
+          transition: all 0.2s;
+        }
+
+        .profile-link:hover {
+          background: #ede9fe;
+          transform: translateY(-1px);
+        }
+
+        .profile-icon {
+          font-size: 20px;
+        }
+
+        /* ARTICLE FEED TEXT */
+        .feed-header { 
+          font-size: 28px; 
+          font-weight: 800; 
+          color: #1f2937;
+          margin: 20px 0;
+          position: relative;
+          padding-left: 15px;
+        }
+
+        .feed-header::before {
+          content: "";
+          position: absolute;
+          left: 0;
+          top: 20%;
+          height: 60%;
+          width: 5px;
+          background: #a855f7;
+          border-radius: 10px;
+        }
+
+        /* BUTTONS & MISC */
+        .action-bar {
+          text-align: right;
+          margin-bottom: 20px;
+        }
+
+        .admin-badge { 
+          align-self: flex-start;
+          background: #10b981; 
+          color: white; 
+          padding: 3px 12px; 
+          border-radius: 999px; 
+          font-size: 11px; 
+          font-weight: bold; 
+        }
+
+        .publish-btn { 
+          padding: 10px 20px; 
+          background: #3b82f6; 
+          color: white; 
+          border: none; 
+          border-radius: 8px; 
+          font-weight: 600;
+          cursor: pointer; 
+          transition: 0.2s;
+        }
+
+        .publish-btn:hover { background: #2563eb; }
+
+        .feed { display: flex; flex-direction: column; gap: 20px; }
+
+        .empty-feed {
+          text-align: center;
+          color: #9ca3af;
+          padding: 40px;
+          background: #f9fafb;
+          border-radius: 12px;
+          border: 2px dashed #e5e7eb;
+        }
+
+        .footer { text-align: center; margin-top: 60px; padding-bottom: 40px; }
+        
+        .logout-btn { 
+          padding: 10px 24px; 
+          border: 1px solid #e5e7eb; 
+          background: white; 
+          color: #6b7280; 
+          font-weight: 500;
+          border-radius: 8px; 
+          cursor: pointer; 
+          transition: all 0.2s;
+        }
+        
+        .logout-btn:hover { 
+          background: #fee2e2; 
+          color: #ef4444; 
+          border-color: #fecaca;
+        }
       `}</style>
     </div>
   );
