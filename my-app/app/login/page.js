@@ -55,6 +55,7 @@ export default function Login() {
   return (
     <div className="container">
       <h1>Login</h1>
+      <Link href="/" className="back-link">← Back to Home</Link>
 
       <input
         type="email"
@@ -88,6 +89,8 @@ export default function Login() {
           text-align: center;
           font-family: Arial, sans-serif;
         }
+        .back-link { display: block; font-size: 13px; color: #6b7280; margin-bottom: 10px; text-decoration: none; }
+        .back-link:hover { color: #374151; }
         input {
           width: 100%;
           padding: 8px;
