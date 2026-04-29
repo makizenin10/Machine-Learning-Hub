@@ -11,17 +11,13 @@ export default function Login() {
   const router = useRouter();
 
   const handleLogin = async () => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
       setMessage(error.message);
       return;
     }
 
-    // Block admins from using user login
     const { data: profile } = await supabase
       .from('profiles')
       .select('role')
@@ -57,58 +53,23 @@ export default function Login() {
       <h1>Login</h1>
       <Link href="/" className="back-link">← Back to Home</Link>
 
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+      <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+      <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
 
       <button onClick={handleLogin}>Login</button>
-
-      <button onClick={handleForgotPassword} style={{ background: '#6b7280' }}>
-        Forgot Password?
-      </button>
+      <button onClick={handleForgotPassword} style={{ background: '#6b7280' }}>Forgot Password?</button>
 
       <p>{message}</p>
-
       <p>Don't have an account? <Link href="/signup">Sign up here</Link></p>
 
       <style jsx>{`
         h1 { font-size: 24px; font-weight: bold; }
-        .container {
-          max-width: 300px;
-          margin: 100px auto;
-          text-align: center;
-          font-family: Arial, sans-serif;
-        }
+        .container { max-width: 300px; margin: 100px auto; text-align: center; font-family: Arial, sans-serif; }
+        input { width: 100%; padding: 8px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; }
+        button { width: 100%; padding: 8px; margin-top: 8px; border: none; background: #a855f7; color: white; border-radius: 4px; cursor: pointer; }
+        p { margin-top: 10px; font-size: 14px; }
         .back-link { display: block; font-size: 13px; color: #6b7280; margin-bottom: 10px; text-decoration: none; }
         .back-link:hover { color: #374151; }
-        input {
-          width: 100%;
-          padding: 8px;
-          margin: 8px 0;
-          border: 1px solid #ccc;
-          border-radius: 4px;
-        }
-        button {
-          width: 100%;
-          padding: 8px;
-          margin-top: 8px;
-          border: none;
-          background: #a855f7;
-          color: white;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-        p { margin-top: 10px; font-size: 14px; }
       `}</style>
     </div>
   );

@@ -11,17 +11,30 @@ export default function AdminLogin() {
   const router = useRouter();
 
   const handleLogin = async () => {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
     if (error) {
       setMessage(error.message);
-    } else {
-      // For now, redirect to dashboard. Later can check role
-      router.push("/dashboard");
+      return;
     }
+
+    // Block regular users from admin login
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', data.user.id)
+      .single();
+
+    if (profile?.role !== 'admin') {
+      await supabase.auth.signOut();
+      setMessage('Access denied. Admins only.');
+      return;
+    }
+
+    router.push("/dashboard");
   };
 
   return (
@@ -49,17 +62,13 @@ export default function AdminLogin() {
       <p><Link href="/">Back to Home</Link></p>
 
       <style jsx>{`
-        h1{
-          font-size: 24px;
-          font-weight: bold;
-        }
+        h1 { font-size: 24px; font-weight: bold; }
         .container {
           max-width: 300px;
           margin: 100px auto;
           text-align: center;
           font-family: Arial, sans-serif;
         }
-
         input {
           width: 100%;
           padding: 8px;
@@ -67,7 +76,6 @@ export default function AdminLogin() {
           border: 1px solid #ccc;
           border-radius: 4px;
         }
-
         button {
           width: 100%;
           padding: 8px;
@@ -78,11 +86,7 @@ export default function AdminLogin() {
           border-radius: 4px;
           cursor: pointer;
         }
-
-        p {
-          margin-top: 10px;
-          font-size: 14px;
-        }
+        p { margin-top: 10px; font-size: 14px; }
       `}</style>
     </div>
   );
