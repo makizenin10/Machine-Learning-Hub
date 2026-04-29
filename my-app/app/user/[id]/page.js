@@ -1,37 +1,42 @@
 "use client";
 import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabaseClient";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 
-export default function UserProfile({ params }) {
+export default function UserProfile() {
+  const params = useParams();
+  const id = params?.id;
   const [profile, setProfile] = useState(null);
   const [articles, setArticles] = useState([]);
-  const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!id) return;
     const getData = async () => {
-      const { data: profileData } = await supabase
+      const { data: profileData, error } = await supabase
         .from("profiles")
         .select("*")
-        .eq("id", params.id)
+        .eq("id", id)
         .single();
 
-      if (!profileData) { router.push("/dashboard"); return; }
-      setProfile(profileData);
+      if (error) console.error("Profile error:", error.message);
+      if (profileData) setProfile(profileData);
 
       const { data: articleData } = await supabase
         .from("articles")
         .select("*")
-        .eq("author_id", params.id)
+        .eq("author_id", id)
         .order("created_at", { ascending: false });
 
       if (articleData) setArticles(articleData);
+      setLoading(false);
     };
     getData();
-  }, [params.id, router]);
+  }, [id]);
 
-  if (!profile) return <div style={{ textAlign: 'center', marginTop: '100px' }}>Loading...</div>;
+  if (loading) return <div style={{ textAlign: 'center', marginTop: '100px' }}>Loading...</div>;
+  if (!profile) return <div style={{ textAlign: 'center', marginTop: '100px' }}>User not found.</div>;
 
   return (
     <div className="container">
