@@ -23,7 +23,6 @@ export default function Dashboard() {
       }
       setUser(user);
 
-      // Fetch user role
       const { data: profile } = await supabase
         .from("profiles")
         .select("role")
@@ -32,7 +31,6 @@ export default function Dashboard() {
 
       setUserRole(profile?.role || "user");
 
-      // FETCH ARTICLES WITH JOIN (Linking author_id to profiles)
       const { data, error } = await supabase
         .from("articles")
         .select(`
@@ -66,15 +64,14 @@ export default function Dashboard() {
 
     setPublishing(true);
 
-    // FIX: Using 'author_id' to match your database column and RLS policy
     const { data, error } = await supabase
       .from("articles")
       .insert([
-        { 
-          title: newTitle, 
-          content: newContent, 
-          author_id: user.id, 
-          counter: 0 
+        {
+          title: newTitle,
+          content: newContent,
+          author_id: user.id,
+          counter: 0
         }
       ])
       .select(`
@@ -93,7 +90,6 @@ export default function Dashboard() {
       setNewContent("");
       setShowForm(false);
     } else {
-      console.error("Supabase Error:", error);
       alert("Failed to publish: " + error.message);
     }
   };
@@ -105,7 +101,9 @@ export default function Dashboard() {
       <div className="header">
         <h1>Dashboard</h1>
         <p>Welcome, {user.email}!</p>
-        <button className="logout-btn" onClick={handleLogout}>Logout</button>
+        {userRole === "admin" && (
+          <span className="admin-badge">ADMIN</span>
+        )}
       </div>
 
       <hr />
@@ -153,13 +151,18 @@ export default function Dashboard() {
         )}
       </div>
 
+      {/* Logout at the bottom */}
+      <div style={{ textAlign: 'center', marginTop: '40px', paddingBottom: '40px' }}>
+        <button className="logout-btn" onClick={handleLogout}>Logout</button>
+      </div>
+
       <style jsx>{`
         .container { max-width: 800px; margin: 40px auto; font-family: Arial, sans-serif; padding: 0 20px; }
         .header { text-align: center; margin-bottom: 30px; }
         .admin-badge { background: #10b981; color: white; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: bold; }
-        .logout-btn { padding: 8px 16px; margin-top: 10px; border: none; background: #a855f7; color: white; border-radius: 4px; cursor: pointer; }
+        .logout-btn { padding: 8px 16px; border: none; background: #a855f7; color: white; border-radius: 4px; cursor: pointer; }
         .publish-btn { padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        .publish-form { display: flex; flex-direction: column; gap: 10px; background: #f9fafb; padding: 16px; border-radius: 8px; border: 1px solid #e5e7eb; }
+        .publish-form { display: flex; flex-direction: column; gap: 10px; background: #f9fafb; padding: 16px; border-radius: 8px; border: 1px solid #e5e7eb; margin-bottom: 16px; }
         .submit-btn { padding: 8px 16px; background: #10b981; color: white; border: none; border-radius: 4px; cursor: pointer; align-self: flex-end; }
         .feed { display: flex; flex-direction: column; gap: 15px; }
       `}</style>
