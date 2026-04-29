@@ -10,7 +10,7 @@ export default function ArticleCard({ article, currentUserId, currentUserRole, o
   const [editContent, setEditContent] = useState(article.content);
   const [saving, setSaving] = useState(false);
 
-  const isOwner = currentUserId === article.user_id;
+  const isOwner = currentUserId === article.author_id; 
   const isAdmin = currentUserRole === 'admin';
   const canEdit = isOwner;
   const canDelete = isOwner || isAdmin;
