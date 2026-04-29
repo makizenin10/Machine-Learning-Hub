@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import { useRouter } from "next/navigation";
 import ArticleCard from "../../components/ArticleCard";
+import Link from "next/link";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -101,9 +102,10 @@ export default function Dashboard() {
       <div className="header">
         <h1>Dashboard</h1>
         <p>Welcome, {user.email}!</p>
-        {userRole === "admin" && (
-          <span className="admin-badge">ADMIN</span>
-        )}
+        {userRole === "admin" && <span className="admin-badge">ADMIN</span>}
+        <Link href="/profile" style={{ fontSize: '13px', color: '#3b82f6', textDecoration: 'none' }}>
+          👤 My Profile
+        </Link>
       </div>
 
       <hr />
