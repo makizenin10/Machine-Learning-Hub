@@ -57,18 +57,28 @@ export default function ProfilePage() {
     getData();
   }, [router]);
 
-  const handleSave = async () => {
-    setSaving(true);
-    // Changed to upsert so it creates the row if it's missing (Fixes new user errors)
-    const { error } = await supabase
-      .from("profiles")
-      .upsert({
-        id: user.id,
-        full_name: fullName,
-        age: parseInt(age),
-        contact_number: contactNumber,
-        username: username,
-      });
+    const handleSave = async () => {
+      setSaving(true);
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          full_name: fullName,
+          age: parseInt(age),
+          contact_number: contactNumber,
+          username: username,
+          email: profile.email, // 👈 add this line
+        })
+        .eq("id", user.id);
+      setSaving(false);
+      if (!error) {
+        setProfile({ ...profile, full_name: fullName, age, contact_number: contactNumber, username });
+        setIsEditing(false);
+        setMessage("Profile updated successfully!");
+        setTimeout(() => setMessage(""), 3000);
+      } else {
+        setMessage("Failed to update: " + error.message);
+      }
+    };
     setSaving(false);
     if (!error) {
       setProfile({ ...profile, full_name: fullName, age, contact_number: contactNumber, username });
