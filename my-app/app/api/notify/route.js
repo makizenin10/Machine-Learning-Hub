@@ -9,28 +9,11 @@ const supabase = createClient(
 );
 
 export async function POST(request) {
-  const { title, content, authorName, articleId } = await request.json();
+  const { title, content, authorName } = await request.json();
 
-  // Get all user emails from profiles
-  const { data: profiles, error } = await supabase
-    .from('profiles')
-    .select('email')
-    .eq('role', 'user');
-
-  if (error) {
-    return Response.json({ error: error.message }, { status: 500 });
-  }
-
-  const emails = profiles.map(p => p.email).filter(Boolean);
-
-  if (emails.length === 0) {
-    return Response.json({ message: 'No users to notify' });
-  }
-
-  // Send email to all users
   const { error: emailError } = await resend.emails.send({
-    from: 'Machine Learning Hub <onboarding@resend.dev>',
-    to: emails,
+    from: 'onboarding@resend.dev',
+    to: ['manaayjerica@gmail.com'], // 👈 just your email for now
     subject: `📢 New Article: ${title}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -52,5 +35,5 @@ export async function POST(request) {
     return Response.json({ error: emailError.message }, { status: 500 });
   }
 
-  return Response.json({ message: `Notified ${emails.length} users!` });
+  return Response.json({ message: 'Notification sent!' });
 }
