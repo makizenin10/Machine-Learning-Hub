@@ -36,13 +36,12 @@ export default function ProfilePage() {
         setContactNumber(profileData.contact_number || "");
         setUsername(profileData.username || "");
       } else {
-        // FIX: If no profile exists yet, set a default object so the page stops loading
-        setProfile({ 
-          email: user.email, 
-          full_name: "", 
-          age: "", 
-          contact_number: "", 
-          username: "" 
+        setProfile({
+          email: user.email,
+          full_name: "",
+          age: "",
+          contact_number: "",
+          username: ""
         });
       }
 
@@ -57,28 +56,18 @@ export default function ProfilePage() {
     getData();
   }, [router]);
 
-    const handleSave = async () => {
-      setSaving(true);
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          full_name: fullName,
-          age: parseInt(age),
-          contact_number: contactNumber,
-          username: username,
-          email: profile.email, // 👈 add this line
-        })
-        .eq("id", user.id);
-      setSaving(false);
-      if (!error) {
-        setProfile({ ...profile, full_name: fullName, age, contact_number: contactNumber, username });
-        setIsEditing(false);
-        setMessage("Profile updated successfully!");
-        setTimeout(() => setMessage(""), 3000);
-      } else {
-        setMessage("Failed to update: " + error.message);
-      }
-    };
+  const handleSave = async () => {
+    setSaving(true);
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        full_name: fullName,
+        age: parseInt(age),
+        contact_number: contactNumber,
+        username: username,
+        email: profile.email,
+      })
+      .eq("id", user.id);
     setSaving(false);
     if (!error) {
       setProfile({ ...profile, full_name: fullName, age, contact_number: contactNumber, username });
@@ -193,10 +182,7 @@ export default function ProfilePage() {
             margin-bottom: 15px !important;
             margin-top: 15px !important;
           }
-          .value { 
-            color: #000000 !important;  
-            font-weight: 600; 
-          }
+          .value { color: #000000 !important; font-weight: 600; }
 
           :global(.back-link:hover) { 
             background: #000000 !important; 
@@ -225,7 +211,6 @@ export default function ProfilePage() {
 
           .info-row { display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #f1f5f9; }
           .label { color: #64748b; font-weight: 600; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
-          .value { color: #1e293b; font-weight: 500; }
 
           .edit-btn { 
             margin-top: 25px; 
