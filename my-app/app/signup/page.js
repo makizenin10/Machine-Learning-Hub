@@ -10,6 +10,7 @@ export default function Signup() {
   const [age, setAge] = useState("");
   const [contactNumber, setContactNumber] = useState("");
   const [message, setMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSignUp = async () => {
     if (!email.trim() || !password.trim() || !fullName.trim() || !age.trim() || !contactNumber.trim()) {
@@ -87,7 +88,24 @@ export default function Signup() {
         <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>Sign Up</h1>
 
         <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} required />
-        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} style={inputStyle} required />
+
+        {/* Password with show/hide */}
+        <div style={{ position: 'relative', margin: '8px 0' }}>
+          <input
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={{ width: '100%', padding: '8px', paddingRight: '40px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' }}
+            required
+          />
+          <button
+            onClick={() => setShowPassword(!showPassword)}
+            style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px' }}>
+            {showPassword ? '🙈' : '👁️'}
+          </button>
+        </div>
+
         <input type="text" placeholder="Full Name" value={fullName} onChange={(e) => setFullName(e.target.value)} style={inputStyle} required />
         <input type="number" placeholder="Age" value={age} onChange={(e) => setAge(e.target.value)} style={inputStyle} required />
         <input type="tel" placeholder="Contact Number" value={contactNumber} onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, ""))} maxLength={11} style={inputStyle} required />

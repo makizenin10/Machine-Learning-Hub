@@ -8,6 +8,7 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   const handleLogin = async () => {
@@ -66,8 +67,21 @@ export default function Login() {
         <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)}
           style={{ width: '100%', padding: '8px', margin: '8px 0', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' }} />
 
-        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)}
-          style={{ width: '100%', padding: '8px', margin: '8px 0', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' }} />
+        {/* Password with show/hide */}
+        <div style={{ position: 'relative', margin: '8px 0' }}>
+          <input
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={{ width: '100%', padding: '8px', paddingRight: '40px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' }}
+          />
+          <button
+            onClick={() => setShowPassword(!showPassword)}
+            style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px' }}>
+            {showPassword ? '🙈' : '👁️'}
+          </button>
+        </div>
 
         <button onClick={handleLogin}
           style={{ width: '100%', padding: '8px', marginTop: '8px', border: 'none', background: '#a855f7', color: 'white', borderRadius: '4px', cursor: 'pointer' }}>
