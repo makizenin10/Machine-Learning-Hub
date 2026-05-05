@@ -141,11 +141,11 @@ export default function Dashboard() {
           <Link href="/profile" className="profile-link">
              <span className="profile-icon">👤</span> My Profile
           </Link>
+          <div className="footer">
+            <button className="logout-btn" onClick={handleLogout}>Logout</button>
+          </div>
         </div>
-      </div>
 
-      <div className="footer">
-        <button className="logout-btn" onClick={handleLogout}>Logout</button>
       </div>
 
       <div className="action-bar">
