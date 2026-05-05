@@ -53,7 +53,7 @@ export default function Dashboard() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.push("/");
+    router.push("/"); // This takes them to the landing page (root)
   };
 
   const handleArticleDeleted = (deletedId) => {
@@ -116,26 +116,6 @@ export default function Dashboard() {
 
     if (!error) {
       setArticles((prev) => [data, ...prev]);
-
-      // 👇 Send email notifications to all users
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('full_name, username')
-        .eq('id', user.id)
-        .single();
-
-      const authorName = profileData?.full_name || profileData?.username || 'Someone';
-
-      await fetch('/api/notify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: newTitle,
-          content: newContent,
-          authorName,
-        }),
-      });
-
       setNewTitle("");
       setNewContent("");
       setSelectedFile(null);
@@ -149,6 +129,7 @@ export default function Dashboard() {
 
   return (
     <div className="container">
+      {/* IMPROVED APP HEADER */}
       <div className="app-navbar">
         <div className="title-section">
           <h1 className="app-title">ARTICLE SPACE</h1>
@@ -158,9 +139,13 @@ export default function Dashboard() {
         <div className="user-nav">
           <p className="welcome-text">Welcome, <strong>{user.email}</strong></p>
           <Link href="/profile" className="profile-link">
-            <span className="profile-icon">👤</span> My Profile
+             <span className="profile-icon">👤</span> My Profile
           </Link>
         </div>
+      </div>
+
+      <div className="footer">
+        <button className="logout-btn" onClick={handleLogout}>Logout</button>
       </div>
 
       <div className="action-bar">
@@ -186,6 +171,7 @@ export default function Dashboard() {
             rows={5}
           />
 
+          {/* File Upload Section */}
           <div className="file-upload-zone">
             <input
               type="file"
@@ -227,9 +213,6 @@ export default function Dashboard() {
         )}
       </div>
 
-      <div className="footer">
-        <button className="logout-btn" onClick={handleLogout}>Logout</button>
-      </div>
 
       <style jsx>{`
         .container { 
@@ -238,6 +221,8 @@ export default function Dashboard() {
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
           padding: 40px 20px; 
         }
+
+        /* HEADER & APP TITLE */
         .app-navbar {
           display: flex;
           justify-content: space-between;
@@ -246,6 +231,7 @@ export default function Dashboard() {
           border-bottom: 2px solid #f3f4f6;
           padding-bottom: 20px;
         }
+
         .app-title { 
           font-size: 32px; 
           font-weight: 900; 
@@ -255,9 +241,25 @@ export default function Dashboard() {
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
         }
-        .title-section { display: flex; flex-direction: column; gap: 5px; }
-        .user-nav { text-align: right; color: #000000; }
-        .welcome-text { font-size: 14px; color: #000000; margin: 0 0 8px 0; }
+
+        .title-section {
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+        }
+
+        /* USER PROFILE LINK */
+        .user-nav {
+          text-align: right;
+          color: #000000;
+        }
+
+        .welcome-text {
+          font-size: 14px;
+          color: #000000;
+          margin: 0 0 8px 0;
+        }
+
         .profile-link { 
           display: inline-flex;
           align-items: center;
@@ -271,7 +273,13 @@ export default function Dashboard() {
           border-radius: 10px;
           transition: all 0.2s;
         }
-        .profile-link:hover { background: #ede9fe; transform: translateY(-1px); }
+
+        .profile-link:hover {
+          background: #ede9fe;
+          transform: translateY(-1px);
+        }
+
+        /* PUBLISH FORM STYLING */
         .publish-form {
           display: flex;
           flex-direction: column;
@@ -282,12 +290,53 @@ export default function Dashboard() {
           border: 1px solid #e5e7eb;
           margin-bottom: 25px;
         }
-        .form-input { padding: 10px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 16px; }
-        .form-textarea { padding: 10px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 15px; font-family: inherit; }
-        .file-upload-zone { border: 2px dashed #d1d5db; border-radius: 6px; padding: 16px; text-align: center; background: white; }
+
+        .form-input {
+          padding: 10px;
+          border-radius: 6px;
+          border: 1px solid #d1d5db;
+          font-size: 16px;
+        }
+
+        .form-textarea {
+          padding: 10px;
+          border-radius: 6px;
+          border: 1px solid #d1d5db;
+          font-size: 15px;
+          font-family: inherit;
+        }
+
+        .file-upload-zone {
+          border: 2px dashed #d1d5db;
+          border-radius: 6px;
+          padding: 16px;
+          text-align: center;
+          background: white;
+        }
+
         .file-label { cursor: pointer; color: #6366f1; font-size: 14px; }
-        .remove-file-btn { margin-left: 10px; background: none; border: none; color: #ef4444; cursor: pointer; font-size: 13px; font-weight: bold; }
-        .submit-btn { padding: 10px; background: #10b981; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        
+        .remove-file-btn {
+          margin-left: 10px;
+          background: none;
+          border: none;
+          color: #ef4444;
+          cursor: pointer;
+          font-size: 13px;
+          font-weight: bold;
+        }
+
+        .submit-btn {
+          padding: 10px;
+          background: #10b981;
+          color: white;
+          border: none;
+          border-radius: 6px;
+          font-weight: bold;
+          cursor: pointer;
+        }
+
+        /* ARTICLE FEED TEXT */
         .feed-header { 
           font-size: 24px; 
           font-weight: 800; 
@@ -296,6 +345,7 @@ export default function Dashboard() {
           position: relative;
           padding-left: 15px;
         }
+
         .feed-header::before {
           content: "";
           position: absolute;
@@ -306,7 +356,9 @@ export default function Dashboard() {
           background: #a855f7;
           border-radius: 10px;
         }
+
         .action-bar { text-align: right; margin-bottom: 20px; }
+
         .admin-badge { 
           align-self: flex-start;
           background: #10b981; 
@@ -316,6 +368,7 @@ export default function Dashboard() {
           font-size: 11px; 
           font-weight: bold; 
         }
+
         .publish-btn { 
           padding: 10px 20px; 
           background: #3b82f6; 
@@ -326,9 +379,13 @@ export default function Dashboard() {
           cursor: pointer; 
           transition: 0.2s;
         }
+
         .publish-btn:hover { background: #2563eb; }
+
         .feed { display: flex; flex-direction: column; gap: 20px; }
+
         .footer { text-align: center; margin-top: 10px; padding-bottom: 40px; }
+        
         .logout-btn { 
           padding: 10px 24px; 
           border: 1px solid #d17fef; 
@@ -339,7 +396,12 @@ export default function Dashboard() {
           cursor: pointer; 
           transition: all 0.2s;
         }
-        .logout-btn:hover { background: #9953b3; color: #f5f4f4; border-color: #000000; }
+        
+        .logout-btn:hover { 
+          background: #9953b3; 
+          color: #f5f4f4; 
+          border-color: #000000;
+        }
       `}</style>
     </div>
   );
