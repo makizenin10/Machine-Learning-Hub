@@ -388,8 +388,8 @@ export default function Dashboard() {
         
         .logout-btn { 
           padding: 10px 24px; 
-          border: 1px solid #d17fef; 
-          background: #d17fef; 
+          border: 1px solid #ef7f7f; 
+          background: #f34242; 
           color: #000000; 
           font-weight: 500;
           border-radius: 8px; 
@@ -398,7 +398,7 @@ export default function Dashboard() {
         }
         
         .logout-btn:hover { 
-          background: #9953b3; 
+          background: #f34242; 
           color: #f5f4f4; 
           border-color: #000000;
         }
