@@ -137,7 +137,7 @@ export default function Dashboard() {
         </div>
         
         <div className="user-nav">
-          <p className="welcome-text">Welcome, <strong>{profiles?.full_name || profiles?.username || user.email}</strong></p>
+          <p className="welcome-text">Welcome, <strong>{user.email}</strong></p>
           <Link href="/profile" className="profile-link">
              <span className="profile-icon">👤</span> My Profile
           </Link>
