@@ -16,6 +16,7 @@ export default function Dashboard() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const router = useRouter();
+  const [fullName, setFullName] = useState(null); 
 
   useEffect(() => {
     const getData = async () => {
@@ -28,11 +29,12 @@ export default function Dashboard() {
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("role")
+        .select("role, full_name")
         .eq("id", user.id)
         .single();
 
       setUserRole(profile?.role || "user");
+      setFullName(profile?.full_name || user.email); // fallback to email if no name set
 
       const { data, error } = await supabase
         .from("articles")
@@ -137,7 +139,7 @@ export default function Dashboard() {
         </div>
         
         <div className="user-nav">
-          <p className="welcome-text">Welcome, <strong>{user.email}</strong></p>
+          <p className="welcome-text">Welcome, <strong>{fullName}</strong></p>
           <Link href="/profile" className="profile-link">
              <span className="profile-icon">👤</span> My Profile
           </Link>
