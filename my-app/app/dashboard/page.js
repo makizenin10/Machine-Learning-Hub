@@ -4,6 +4,8 @@ import { supabase } from "../../lib/supabaseClient";
 import { useRouter } from "next/navigation";
 import ArticleCard from "../../components/ArticleCard";
 import Link from "next/link";
+import { notifyAllUsersNewArticle } from "../../lib/notifyNewArticle";
+import NotificationBellWrapper from "../../components/NotificationBellWrapper";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -16,7 +18,7 @@ export default function Dashboard() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const router = useRouter();
-  const [fullName, setFullName] = useState(null); 
+  const [fullName, setFullName] = useState(null);
 
   useEffect(() => {
     const getData = async () => {
@@ -34,17 +36,11 @@ export default function Dashboard() {
         .single();
 
       setUserRole(profile?.role || "user");
-      setFullName(profile?.full_name || user.email); // fallback to email if no name set
+      setFullName(profile?.full_name || user.email);
 
       const { data, error } = await supabase
         .from("articles")
-        .select(`
-          *,
-          profiles (
-            username,
-            full_name
-          )
-        `)
+        .select(`*, profiles(username, full_name)`)
         .order("created_at", { ascending: false });
 
       if (!error) setArticles(data);
@@ -55,7 +51,7 @@ export default function Dashboard() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.push("/"); // This takes them to the landing page (root)
+    router.push("/");
   };
 
   const handleArticleDeleted = (deletedId) => {
@@ -122,6 +118,14 @@ export default function Dashboard() {
       setNewContent("");
       setSelectedFile(null);
       setShowForm(false);
+
+      // 🔔 Notify all users about the new article
+      await notifyAllUsersNewArticle({
+        authorId: user.id,
+        authorName: fullName || user.email,
+        articleId: data.id,
+        articleTitle: data.title,
+      });
     } else {
       alert("Failed to publish: " + error.message);
     }
@@ -131,23 +135,22 @@ export default function Dashboard() {
 
   return (
     <div className="container">
-      {/* IMPROVED APP HEADER */}
       <div className="app-navbar">
         <div className="title-section">
           <h1 className="app-title">ARTICLE SPACE</h1>
           {userRole === "admin" && <span className="admin-badge">ADMIN</span>}
         </div>
-        
+
         <div className="user-nav">
           <p className="welcome-text">Welcome, <strong>{fullName}</strong></p>
           <Link href="/profile" className="profile-link">
-             <span className="profile-icon">👤</span> My Profile
+            <span className="profile-icon">👤</span> My Profile
           </Link>
           <div className="footer">
+            <NotificationBellWrapper />
             <button className="logout-btn" onClick={handleLogout}>Logout</button>
           </div>
         </div>
-
       </div>
 
       <div className="action-bar">
@@ -173,7 +176,6 @@ export default function Dashboard() {
             rows={5}
           />
 
-          {/* File Upload Section */}
           <div className="file-upload-zone">
             <input
               type="file"
@@ -215,195 +217,32 @@ export default function Dashboard() {
         )}
       </div>
 
-
       <style jsx>{`
-        .container { 
-          max-width: 800px; 
-          margin: 0 auto; 
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
-          padding: 40px 20px; 
-        }
-
-        /* HEADER & APP TITLE */
-        .app-navbar {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          margin-bottom: 40px;
-          border-bottom: 2px solid #f3f4f6;
-          padding-bottom: 20px;
-        }
-
-        .app-title { 
-          font-size: 32px; 
-          font-weight: 900; 
-          letter-spacing: -1px;
-          margin: 0;
-          background: linear-gradient(to right, #a855f7, #6366f1);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-        }
-
-        .title-section {
-          display: flex;
-          flex-direction: column;
-          gap: 5px;
-        }
-
-        /* USER PROFILE LINK */
-        .user-nav {
-          text-align: right;
-          color: #000000;
-        }
-
-        .welcome-text {
-          font-size: 14px;
-          color: #000000;
-          margin: 0 0 8px 0;
-        }
-
-        .profile-link { 
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 18px;
-          font-weight: 600;
-          color: #4f46e5; 
-          text-decoration: none;
-          padding: 8px 16px;
-          background: #f5f3ff;
-          border-radius: 10px;
-          transition: all 0.2s;
-        }
-
-        .profile-link:hover {
-          background: #ede9fe;
-          transform: translateY(-1px);
-        }
-
-        /* PUBLISH FORM STYLING */
-        .publish-form {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          background: #f9fafb;
-          padding: 20px;
-          border-radius: 12px;
-          border: 1px solid #e5e7eb;
-          margin-bottom: 25px;
-        }
-
-        .form-input {
-          padding: 10px;
-          border-radius: 6px;
-          border: 1px solid #d1d5db;
-          font-size: 16px;
-        }
-
-        .form-textarea {
-          padding: 10px;
-          border-radius: 6px;
-          border: 1px solid #d1d5db;
-          font-size: 15px;
-          font-family: inherit;
-        }
-
-        .file-upload-zone {
-          border: 2px dashed #d1d5db;
-          border-radius: 6px;
-          padding: 16px;
-          text-align: center;
-          background: white;
-        }
-
+        .container { max-width: 800px; margin: 0 auto; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; padding: 40px 20px; }
+        .app-navbar { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; border-bottom: 2px solid #f3f4f6; padding-bottom: 20px; }
+        .app-title { font-size: 32px; font-weight: 900; letter-spacing: -1px; margin: 0; background: linear-gradient(to right, #a855f7, #6366f1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .title-section { display: flex; flex-direction: column; gap: 5px; }
+        .user-nav { text-align: right; color: #000000; }
+        .welcome-text { font-size: 14px; color: #000000; margin: 0 0 8px 0; }
+        .profile-link { display: inline-flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 600; color: #4f46e5; text-decoration: none; padding: 8px 16px; background: #f5f3ff; border-radius: 10px; transition: all 0.2s; }
+        .profile-link:hover { background: #ede9fe; transform: translateY(-1px); }
+        .publish-form { display: flex; flex-direction: column; gap: 12px; background: #f9fafb; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb; margin-bottom: 25px; }
+        .form-input { padding: 10px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 16px; }
+        .form-textarea { padding: 10px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 15px; font-family: inherit; }
+        .file-upload-zone { border: 2px dashed #d1d5db; border-radius: 6px; padding: 16px; text-align: center; background: white; }
         .file-label { cursor: pointer; color: #6366f1; font-size: 14px; }
-        
-        .remove-file-btn {
-          margin-left: 10px;
-          background: none;
-          border: none;
-          color: #ef4444;
-          cursor: pointer;
-          font-size: 13px;
-          font-weight: bold;
-        }
-
-        .submit-btn {
-          padding: 10px;
-          background: #10b981;
-          color: white;
-          border: none;
-          border-radius: 6px;
-          font-weight: bold;
-          cursor: pointer;
-        }
-
-        /* ARTICLE FEED TEXT */
-        .feed-header { 
-          font-size: 24px; 
-          font-weight: 800; 
-          color: #1f2937;
-          margin: 20px 0;
-          position: relative;
-          padding-left: 15px;
-        }
-
-        .feed-header::before {
-          content: "";
-          position: absolute;
-          left: 0;
-          top: 20%;
-          height: 60%;
-          width: 5px;
-          background: #a855f7;
-          border-radius: 10px;
-        }
-
+        .remove-file-btn { margin-left: 10px; background: none; border: none; color: #ef4444; cursor: pointer; font-size: 13px; font-weight: bold; }
+        .submit-btn { padding: 10px; background: #10b981; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .feed-header { font-size: 24px; font-weight: 800; color: #1f2937; margin: 20px 0; position: relative; padding-left: 15px; }
+        .feed-header::before { content: ""; position: absolute; left: 0; top: 20%; height: 60%; width: 5px; background: #a855f7; border-radius: 10px; }
         .action-bar { text-align: right; margin-bottom: 20px; }
-
-        .admin-badge { 
-          align-self: flex-start;
-          background: #10b981; 
-          color: white; 
-          padding: 3px 12px; 
-          border-radius: 999px; 
-          font-size: 11px; 
-          font-weight: bold; 
-        }
-
-        .publish-btn { 
-          padding: 10px 20px; 
-          background: #3b82f6; 
-          color: white; 
-          border: none; 
-          border-radius: 8px; 
-          font-weight: 600;
-          cursor: pointer; 
-          transition: 0.2s;
-        }
-
+        .admin-badge { align-self: flex-start; background: #10b981; color: white; padding: 3px 12px; border-radius: 999px; font-size: 11px; font-weight: bold; }
+        .publish-btn { padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
         .publish-btn:hover { background: #2563eb; }
-
         .feed { display: flex; flex-direction: column; gap: 20px; }
-
-        .footer {margin-top: 10px; padding-bottom: 40px; margin-left: 50px; }
-        
-        .logout-btn { 
-          padding: 10px 24px; 
-          border: 1px solid #ef7f7f; 
-          background: #c41b1b; 
-          color: #000000; 
-          font-weight: 500;
-          border-radius: 8px; 
-          cursor: pointer; 
-          transition: all 0.2s;
-        }
-        
-        .logout-btn:hover { 
-          background: #831010; 
-          color: #f5f4f4; 
-          border-color: #000000;
-        }
+        .footer { margin-top: 10px; padding-bottom: 40px; margin-left: 50px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .logout-btn { padding: 10px 24px; border: 1px solid #ef7f7f; background: #c41b1b; color: #fff5f5; font-weight: 500; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+        .logout-btn:hover { background: #831010; color: #f5f4f4; border-color: #000000; }
       `}</style>
     </div>
   );
