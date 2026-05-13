@@ -62,10 +62,10 @@ export default function Signup() {
         if (profileError) {
           setMessage("Signup successful but profile save failed: " + profileError.message);
         } else {
-          setMessage("Sign up successful! Check your email for confirmation.");
+          setMessage("Sign up successful!");
         }
       } else {
-        setMessage("Sign up successful! Check your email for confirmation.");
+        setMessage("Sign up successful!");
       }
     }
   };
